@@ -322,8 +322,8 @@ const T = {
     bulk_h4: 'Meglévők kitöltése sorrendben: a már meglévő állítások adott nyelvű mezőit tölti ki fentről lefelé. Ezt használd a fordításhoz (például előbb a magyar sorokat adtad hozzá, most ugyanabban a sorrendben beilleszted az angolt).',
     bulk_after: 'Beillesztés után az egyes állítások alább egyenként is szerkeszthetők.',
     q_multi: 'Többszörös választás', q_other: '„Egyéb, éspedig:” lehetőség', other_opt: 'Egyéb, éspedig:', other_ph: 'Kérjük, írja le',
-    len_ok: 'A link {n} karakter. Bármelyik alábbi rövidítő elfogadja.',
-    len_warn: 'A link {n} karakter. Az is.gd és a v.gd legfeljebb 5000 karaktert fogad el, próbáld a TinyURL-t. Rövidebb lesz a link, ha csak egy nyelvet használsz, vagy rövidíted a szövegeket.',
+    len_ok: 'A link {n} karakter.',
+    len_warn: '',
     len_bad: 'A link {n} karakter, ez túl hosszú a megosztáshoz. Kapcsold ki a második nyelvet, vagy rövidítsd a szövegeket és az állításokat.',
     short_t: 'Rövidítés:', short_help: 'Másold ki a linket, majd illeszd be a rövidítő oldalán. Új lapon nyílik.',
     gs_notice: 'Még nincs kész Google-táblázatod? Nyisd meg az Útmutatót.',
@@ -461,8 +461,8 @@ const T = {
     bulk_h4: 'Fill existing statements in order: fills the chosen language field of existing statements from top to bottom. Use this for a translation (e.g. you added the Hungarian lines first, now paste the English ones in the same order).',
     bulk_after: 'After pasting, each statement can still be edited one by one below.',
     q_multi: 'Multiple choice', q_other: '“Other:” option', other_opt: 'Other:', other_ph: 'Please specify',
-    len_ok: 'The link is {n} characters. Any shortener below will accept it.',
-    len_warn: 'The link is {n} characters. is.gd and v.gd accept at most 5000 characters, try TinyURL. The link gets shorter with a single language or shorter texts.',
+    len_ok: 'The link is {n} characters.',
+    len_warn: '',
     len_bad: 'The link is {n} characters, too long to share. Turn off the second language, or shorten the texts and statements.',
     short_t: 'Shorten:', short_help: 'Copy the link, then paste it on the shortener’s page. Opens in a new tab.',
     gs_notice: 'No Google Sheet set up yet? Open the Guide.',
@@ -1561,9 +1561,8 @@ function pShare(v) {
     catch { alert(t('load_bad')); }
   } });
   const n = D.link ? D.link.length : 0;
-  const lenMsg = !D.link ? null : n < 5000 ? h('span', { class: 'lenmsg ok' }, t('len_ok', { n }))
-    : n <= 8000 ? h('span', { class: 'lenmsg w' }, t('len_warn', { n })) : h('span', { class: 'lenmsg bad' }, t('len_bad', { n }));
-  const shorteners = [['is.gd', 'https://is.gd/'], ['TinyURL', 'https://tinyurl.com/'], ['v.gd', 'https://v.gd/']];
+  const lenMsg = !D.link ? null : n <= 8000 ? h('span', { class: 'lenmsg ok' }, t('len_ok', { n })) : h('span', { class: 'lenmsg bad' }, t('len_bad', { n }));
+  const shorteners = [['TinyURL', 'https://tinyurl.com/']];
   const guide = GUIDE[uiLang] || GUIDE.hu;
   return [
     h('h2', {}, t('tab_share')), h('p', { class: 'intro' }, t('sh_intro')),
