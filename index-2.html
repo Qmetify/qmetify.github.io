@@ -1,0 +1,1456 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Qmetify</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='2' y='14' width='5' height='5' fill='%239C3A55'/><rect x='9' y='9' width='5' height='5' fill='%236F7A76'/><rect x='9' y='16' width='5' height='5' fill='%236F7A76'/><rect x='16' y='9' width='5' height='5' fill='%236F7A76'/><rect x='16' y='16' width='5' height='5' fill='%236F7A76'/><rect x='23' y='14' width='5' height='5' fill='%232E6B5C'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0EC; --surface:#F9FBF8; --ink:#1E2A28; --muted:#5B6864; --line:#C7D0CB;
+  --agree:#2E6B5C; --agree-soft:#DCEBE5; --dis:#9C3A55; --dis-soft:#F2E0E6;
+  --neu:#66726E; --neu-soft:#E2E7E4; --pick:#C9921B; --pick-soft:#F6E9C8;
+  --err:#A3302C; --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#131B1A; --surface:#1B2523; --ink:#E3EAE7; --muted:#9BA9A4; --line:#34433F;
+  --agree:#72B8A4; --agree-soft:#1E3831; --dis:#DA869D; --dis-soft:#3C2430;
+  --neu:#A2AEAA; --neu-soft:#26302E; --pick:#E6BD55; --pick-soft:#3A3118; --err:#F08A84;
+}}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;line-height:1.2;margin:0 0 .5em}
+h1{font-size:clamp(30px,4.5vw,44px)} h2{font-size:28px} h3{font-size:20px}
+p{margin:0 0 1em;max-width:70ch}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 60px}
+.narrow{max-width:720px}
+.muted{color:var(--muted)}
+.small{font-size:13.5px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:21px;font-weight:600;background:none;border:0;color:inherit;cursor:pointer;padding:0;text-align:left}
+.brand svg{flex:none}
+.bar-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:600;font-size:15px;padding:10px 18px;border-radius:6px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer;line-height:1.2}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+.btn.sm{font-size:13.5px;padding:6px 11px}
+.btn.link{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;font-weight:500}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--pick);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;font-size:13px;font-weight:600;border:0;background:transparent;color:var(--muted);padding:5px 10px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.navrow{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:32px;flex-wrap:wrap}
+.banner{background:var(--pick-soft);border-bottom:1px solid var(--pick);padding:9px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px;flex-wrap:wrap}
+
+/* stepper */
+.steps{display:flex;gap:18px;list-style:none;margin:0;padding:0;font-size:13.5px;color:var(--muted);counter-reset:s}
+.steps li{counter-increment:s;display:flex;align-items:center;gap:6px}
+.steps li::before{content:counter(s);display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1px solid var(--line);font-size:11.5px;font-weight:600}
+.steps li.on{color:var(--ink);font-weight:600}
+.steps li.on::before{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.steps li.done::before{content:"✓";border-color:var(--agree);color:var(--agree)}
+
+/* home */
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center;padding:36px 0 44px}
+.hero h1{font-size:clamp(44px,7vw,76px);letter-spacing:-.01em;margin-bottom:.25em}
+.hero .lead{font-family:var(--serif);font-size:22px;line-height:1.45;max-width:30ch}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 14px}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;border-top:1px solid var(--line);padding-top:28px}
+.feat h3{font-size:19px;margin-bottom:.3em}
+.feat p{font-size:15px;color:var(--muted)}
+.pyr{display:flex;gap:6px;justify-content:center;align-items:flex-start}
+.pyr .pc{display:flex;flex-direction:column;gap:6px;align-items:center}
+.pyr .pl{font-family:var(--serif);font-size:18px;margin-bottom:2px}
+.pyr .pb{width:clamp(26px,4.2vw,46px);height:clamp(18px,2.8vw,30px);border-radius:3px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c)}
+@media (prefers-reduced-motion:no-preference){
+  .pyr.anim .pb{animation:drop .55s cubic-bezier(.2,.8,.25,1) both;animation-delay:var(--d)}
+  @keyframes drop{from{opacity:0;transform:translateY(-22px)}to{opacity:1;transform:none}}
+}
+
+/* participant */
+.ptitle{margin-top:8px}
+.text-block p{font-size:17px}
+.consent{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px;margin-top:22px}
+.consent p{font-size:15px}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:600;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:3px;accent-color:var(--agree);flex:none}
+.coi{font-family:var(--serif);font-size:22px;line-height:1.4;margin:6px 0 18px;max-width:60ch}
+.coi-small{font-family:var(--serif);font-size:18px;line-height:1.4;margin:0 0 6px}
+.howlist{padding-left:22px;margin:0 0 24px}
+.howlist li{margin-bottom:10px;max-width:68ch;font-size:16.5px}
+.progress{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:10px 0 0}
+.progress span{display:block;height:100%;background:var(--ink);transition:width .25s}
+.pcard{max-width:680px;margin:26px auto 22px;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:40px 38px;font-family:var(--serif);font-size:clamp(20px,2.6vw,25px);line-height:1.45;min-height:190px;display:flex;align-items:center;box-shadow:0 18px 30px -24px rgba(20,35,32,.45)}
+.piles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:680px;margin:0 auto}
+.pilebtn{font:inherit;text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--c);border-radius:5px;padding:14px 14px 12px;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:92px}
+.pilebtn:hover{border-color:var(--c)}
+.pilebtn[aria-pressed="true"]{background:var(--cs)}
+.pilebtn .pn{font-weight:600;font-size:15.5px;line-height:1.25}
+.pilebtn .pk{font-size:12.5px;color:var(--muted);margin-top:auto;display:flex;justify-content:space-between}
+.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 6px;font-size:12px;font-weight:600;color:var(--ink)}
+.center-row{max-width:680px;margin:14px auto 0;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* sort grid */
+.hint{border-left:4px solid var(--pick);background:var(--pick-soft);padding:10px 14px;border-radius:0 5px 5px 0;margin:12px 0 18px;max-width:78ch;font-size:15px}
+.gridwrap{overflow-x:auto;padding:4px 2px 10px;margin:0 -2px}
+.qgrid{display:flex;gap:8px;justify-content:center;min-width:max-content;margin:0 auto}
+.qcol{width:var(--cw,148px);display:flex;flex-direction:column;gap:6px}
+.qhead{font:inherit;background:none;border:0;border-bottom:3px solid var(--c);color:var(--c);padding:2px 0 5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;border-radius:0}
+.qhead .sc{font-family:var(--serif);font-size:30px;line-height:1.05;font-weight:500}
+.qhead .cnt{font-size:12px;color:var(--muted);font-weight:600}
+.qhead .cnt.full{color:var(--c)}
+.slot{height:var(--sh,98px);border:1.5px dashed var(--line);border-radius:4px;background:transparent;padding:0;font:inherit;color:inherit;cursor:pointer;width:100%;display:block}
+.slot.empty:hover,.picking .slot.empty{border-color:var(--pick)}
+.slot.over{background:var(--pick-soft);border-style:solid;border-color:var(--pick)}
+.scard{font:inherit;display:block;width:100%;height:100%;text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:4px;padding:6px 8px;font-family:var(--serif);font-size:13.2px;line-height:1.3;cursor:grab;overflow:hidden}
+.scard .tx{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.scard.sel{outline:3px solid var(--pick);outline-offset:-1px;background:var(--pick-soft)}
+.ends{display:flex;justify-content:space-between;gap:20px;margin:6px auto 0;min-width:max-content;font-weight:600;font-size:14px}
+.ends .l{color:var(--dis)} .ends .r{color:var(--agree)}
+.tray{margin-top:26px;border-top:1px solid var(--line);padding-top:16px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font:inherit;font-size:14px;font-weight:600;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:6px 14px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.tab .dot{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.tab[aria-selected="true"]{color:var(--ink);border-color:var(--ink);background:var(--surface)}
+.traylist{display:flex;flex-wrap:wrap;gap:10px;min-height:80px;padding:4px;border-radius:6px}
+.traylist.over{background:var(--pick-soft)}
+.traylist .scard{width:200px;height:auto;min-height:84px}
+.traylist .scard .tx{-webkit-line-clamp:7}
+.selbar{position:sticky;bottom:0;z-index:5;margin-top:18px;background:var(--surface);border:1px solid var(--pick);border-radius:8px;padding:12px 16px;display:flex;gap:16px;align-items:center;justify-content:space-between;box-shadow:0 -10px 24px -18px rgba(0,0,0,.4);flex-wrap:wrap}
+.selbar .st{font-family:var(--serif);font-size:16.5px;line-height:1.4;flex:1 1 320px}
+.selbar .acts{display:flex;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:6px;font-size:14px;font-weight:600;z-index:50}
+.narrow-note{display:none}
+@media (max-width:760px){.narrow-note{display:block}.qcol{--cw:124px}.slot{--sh:92px}}
+
+/* post */
+.ext{margin:22px 0}
+.ext h3{display:flex;align-items:center;gap:10px}
+.ext h3 .badge{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--c);border:1.5px solid var(--c);border-radius:4px;padding:1px 7px}
+.cm{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:5px;padding:14px 16px;margin-bottom:12px}
+.cm .q{font-family:var(--serif);font-size:17px;margin:0 0 10px;line-height:1.4}
+.cm .q .sc{font-family:var(--sans);font-weight:700;font-size:13px;color:var(--c);margin-right:6px}
+input[type=text],input[type=url],input[type=number],textarea,select{font:inherit;font-size:15px;width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink)}
+textarea{resize:vertical;min-height:64px;line-height:1.45}
+.invalid{border-color:var(--err)!important;box-shadow:0 0 0 1px var(--err)}
+.err{color:var(--err);font-weight:600;font-size:14.5px}
+.qfield{margin-bottom:18px;max-width:640px}
+.qfield label.lb{display:block;font-weight:600;margin-bottom:6px}
+.done-mark{width:64px;height:64px;margin-bottom:16px}
+
+/* designer */
+.dz{display:grid;grid-template-columns:230px 1fr;gap:36px;align-items:start}
+.dnav{position:sticky;top:16px;display:flex;flex-direction:column;gap:2px}
+.dnav button{font:inherit;text-align:left;background:transparent;border:0;border-left:3px solid transparent;padding:9px 12px;color:var(--muted);font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dnav button[aria-current="true"]{color:var(--ink);border-left-color:var(--ink);background:var(--surface)}
+.dnav .flag{font-size:11.5px;font-weight:700;border-radius:10px;padding:0 7px;line-height:18px}
+.flag.e{background:var(--dis-soft);color:var(--dis)} .flag.w{background:var(--pick-soft);color:var(--ink)} .flag.n{color:var(--muted);font-weight:600}
+.dpanel h2{margin-bottom:.2em}
+.dpanel>.intro{color:var(--muted);margin-bottom:26px;max-width:68ch}
+.field{margin-bottom:22px;max-width:760px}
+.field>label,.field>.lb{display:block;font-weight:600;font-size:14.5px;margin-bottom:4px}
+.field .help{font-size:13.5px;color:var(--muted);margin:0 0 8px;max-width:68ch}
+.lp{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:start;margin-bottom:6px}
+.ltag{font-size:11.5px;font-weight:700;letter-spacing:.04em;border:1px solid var(--line);border-radius:4px;text-align:center;padding:5px 0;color:var(--muted);margin-top:4px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.strow{display:grid;grid-template-columns:62px 1fr auto;gap:12px;padding:14px 0;border-top:1px solid var(--line);max-width:900px}
+.sid{font-weight:700;font-size:14px;padding-top:8px}
+.sacts{display:flex;flex-direction:column;gap:4px}
+.icon-btn{font:inherit;font-size:13px;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:4px;padding:3px 8px;cursor:pointer;min-width:34px}
+.icon-btn:hover{color:var(--ink);border-color:var(--ink)}
+.cc{font-size:12px;color:var(--muted);text-align:right;margin-top:-2px}
+.cc.long{color:var(--err);font-weight:600}
+details.box{border:1px solid var(--line);border-radius:6px;padding:12px 16px;background:var(--surface);max-width:900px;margin-bottom:20px}
+details.box summary{font-weight:600;cursor:pointer}
+.status{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:6px 12px;border-radius:5px}
+.status.ok{background:var(--agree-soft);color:var(--agree)} .status.bad{background:var(--dis-soft);color:var(--dis)}
+.hts{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+.hts label{display:flex;flex-direction:column;align-items:center;gap:3px;font-family:var(--serif);font-size:16px;width:56px}
+.hts input{text-align:center;padding:6px 4px}
+.mini{display:flex;gap:4px;align-items:flex-start;margin:14px 0}
+.mini .mc{display:flex;flex-direction:column;gap:3px;align-items:center}
+.mini .ml{font-family:var(--serif);font-size:14px;color:var(--c)}
+.mini .mb{width:26px;height:15px;border-radius:2px;background:var(--cs);border:1px solid var(--c)}
+.qcard{border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:12px;background:var(--surface);max-width:900px}
+.vlist{list-style:none;padding:0;margin:0 0 24px;max-width:760px}
+.vlist li{padding:8px 0 8px 26px;border-top:1px solid var(--line);position:relative;font-size:15px}
+.vlist li::before{position:absolute;left:0;top:8px;font-weight:700}
+.vlist li.e::before{content:"✕";color:var(--dis)} .vlist li.w::before{content:"!";color:var(--pick)} .vlist li.o::before{content:"✓";color:var(--agree)}
+.linkbox{font-family:var(--sans);font-size:13px;word-break:break-all;min-height:90px}
+pre.code{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;overflow:auto;max-height:340px;font-size:12.5px;line-height:1.45}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;gap:28px}
+  .feat{grid-template-columns:1fr;gap:10px}
+  .dz{grid-template-columns:1fr;gap:18px}
+  .dnav{position:static;flex-direction:row;overflow-x:auto;border-bottom:1px solid var(--line)}
+  .dnav button{border-left:0;border-bottom:3px solid transparent;white-space:nowrap}
+  .dnav button[aria-current="true"]{border-bottom-color:var(--ink)}
+  .piles{grid-template-columns:1fr}
+  .pilebtn{min-height:auto}
+  .pcard{padding:28px 22px}
+  .two{grid-template-columns:1fr}
+  .strow{grid-template-columns:1fr}
+  .sacts{flex-direction:row}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript>A Qmetify futtatásához engedélyezni kell a JavaScriptet. / Please enable JavaScript.</noscript>
+<script>
+'use strict';
+/* Qmetify: Q-módszertani felmérések tervezése és kitöltése. Egyetlen fájl, szerver nélkül. */
+
+const LANGS = ['hu', 'en'];
+const PILES = ['disagree', 'neutral', 'agree'];
+const PILE_COLOR = { disagree: ['--dis', '--dis-soft'], neutral: ['--neu', '--neu-soft'], agree: ['--agree', '--agree-soft'] };
+const APPS_SCRIPT = "/**\n * Qmetify: válaszgyűjtő végpont Google Táblázathoz\n * Qmetify: response collector for Google Sheets\n *\n * Telepítés / Setup:\n * 1. Hozz létre egy új Google Táblázatot. / Create a new Google Sheet.\n * 2. Bővítmények > Apps Script. Töröld a mintakódot, és másold be ezt a fájlt.\n *    Extensions > Apps Script. Replace the sample code with this file.\n * 3. Telepítés > Új telepítés > Típus: Webalkalmazás.\n *    Végrehajtás: Én. Hozzáférés: Bárki.\n *    Deploy > New deployment > Web app. Execute as: Me. Who has access: Anyone.\n * 4. A kapott /exec végű URL-t másold a tervező \"Beküldési cím\" mezőjébe.\n *    Paste the resulting /exec URL into the designer's \"Submission address\" field.\n *\n * Minden felmérés külön lapra kerül (a felmérés azonosítójával), a nyers\n * JSON pedig a \"_raw\" lapra, hogy semmi ne vesszen el.\n * Each survey gets its own sheet (named by survey ID); the raw JSON goes to\n * the \"_raw\" sheet so nothing is lost.\n */\n\nvar RAW_SHEET = '_raw';\nvar MAX_TEXT = 5000;\n\nfunction doGet(e) {\n  return json_({ ok: true, app: 'q-muhely', time: new Date().toISOString() });\n}\n\nfunction doPost(e) {\n  var lock = LockService.getScriptLock();\n  try {\n    lock.waitLock(20000);\n  } catch (err) {\n    return json_({ ok: false, error: 'busy' });\n  }\n  try {\n    var p = JSON.parse(e.postData.contents);\n    if (!p || !p.surveyId || !p.participantId || !p.sort) {\n      return json_({ ok: false, error: 'invalid payload' });\n    }\n    var ss = SpreadsheetApp.getActiveSpreadsheet();\n\n    var raw = ss.getSheetByName(RAW_SHEET) || ss.insertSheet(RAW_SHEET);\n    if (raw.getLastRow() === 0) {\n      raw.appendRow(['received', 'survey_id', 'participant_id', 'json']);\n      raw.setFrozenRows(1);\n    }\n    raw.appendRow([new Date(), safe_(p.surveyId), safe_(p.participantId), safe_(JSON.stringify(p))]);\n\n    var sh = ss.getSheetByName(sheetName_(p.surveyId)) || ss.insertSheet(sheetName_(p.surveyId));\n    var d = p.durations || {};\n    var row = {\n      received: new Date(),\n      participant_id: safe_(p.participantId),\n      lang: safe_(p.lang || ''),\n      config_version: safe_(p.configVersion || ''),\n      started_at: safe_(p.startedAt || ''),\n      submitted_at: safe_(p.submittedAt || ''),\n      presort_sec: num_(d.presortSec),\n      sort_sec: num_(d.sortSec),\n      total_min: d.totalSec ? Math.round(d.totalSec / 6) / 10 : '',\n      moves: num_(p.moves)\n    };\n    var ids = p.statementIds || Object.keys(p.sort);\n    ids.forEach(function (id) { row['sort_' + id] = num_(p.sort[id]); });\n    ids.forEach(function (id) { row['pre_' + id] = safe_((p.presort || {})[id] || ''); });\n    ids.forEach(function (id) { row['comment_' + id] = safe_((p.comments || {})[id] || ''); });\n    var ans = p.answers || {};\n    Object.keys(ans).forEach(function (k) {\n      var v = ans[k];\n      row['q_' + k] = safe_(Array.isArray(v) ? v.join('; ') : v);\n    });\n    appendByHeader_(sh, row);\n    return json_({ ok: true });\n  } catch (err) {\n    return json_({ ok: false, error: String(err) });\n  } finally {\n    lock.releaseLock();\n  }\n}\n\n/** Menü a táblázatban / Menu in the spreadsheet */\nfunction onOpen() {\n  SpreadsheetApp.getUi()\n    .createMenu('Qmetify')\n    .addItem('qmethod-mátrix az aktív lapból / qmethod matrix from active sheet', 'buildQmethodMatrix')\n    .addToUi();\n}\n\n/**\n * Az aktív felmérés-lapból állítás × résztvevő mátrixot készít, amely\n * CSV-ként letöltve közvetlenül beolvasható az R qmethod csomagba.\n * Builds a statement × participant matrix for the R qmethod package.\n */\nfunction buildQmethodMatrix() {\n  var sh = SpreadsheetApp.getActiveSheet();\n  var ui = SpreadsheetApp.getUi();\n  var data = sh.getDataRange().getValues();\n  if (data.length < 2) { ui.alert('Nincs adat ezen a lapon. / No data on this sheet.'); return; }\n  var header = data[0];\n  var pidCol = header.indexOf('participant_id');\n  var sortCols = [];\n  header.forEach(function (hd, i) { if (String(hd).indexOf('sort_') === 0) sortCols.push(i); });\n  if (pidCol < 0 || !sortCols.length) {\n    ui.alert('Válaszd ki egy felmérés lapját (nem a _raw lapot). / Select a survey sheet, not _raw.');\n    return;\n  }\n  var rows = data.slice(1);\n  var out = [['statement'].concat(rows.map(function (r, i) {\n    return 'P' + ('00' + (i + 1)).slice(-3) + '_' + String(r[pidCol]).slice(0, 6);\n  }))];\n  sortCols.forEach(function (c) {\n    out.push([String(header[c]).replace('sort_', '')].concat(rows.map(function (r) { return r[c]; })));\n  });\n  var name = (sh.getName() + '_qmethod').slice(0, 99);\n  var target = sh.getParent().getSheetByName(name) || sh.getParent().insertSheet(name);\n  target.clear();\n  target.getRange(1, 1, out.length, out[0].length).setValues(out);\n  target.setFrozenRows(1);\n  ui.alert('Kész: \"' + name + '\". Fájl > Letöltés > CSV. / Done. File > Download > CSV.');\n}\n\nfunction appendByHeader_(sh, row) {\n  var lastCol = sh.getLastColumn();\n  var header = lastCol ? sh.getRange(1, 1, 1, lastCol).getValues()[0] : [];\n  var missing = Object.keys(row).filter(function (k) { return header.indexOf(k) < 0; });\n  if (missing.length) {\n    header = header.concat(missing);\n    sh.getRange(1, 1, 1, header.length).setValues([header]);\n    sh.setFrozenRows(1);\n  }\n  sh.appendRow(header.map(function (k) { return row.hasOwnProperty(k) ? row[k] : ''; }));\n}\n\nfunction sheetName_(id) {\n  return String(id).replace(/[^\\w\\-]/g, '_').slice(0, 90) || 'survey';\n}\n\n/** Képletbefecskendezés elleni védelem / guard against formula injection */\nfunction safe_(v) {\n  if (v === null || v === undefined) return '';\n  var s = String(v).slice(0, MAX_TEXT);\n  return /^[=+\\-@]/.test(s) ? \"'\" + s : s;\n}\n\nfunction num_(v) {\n  var n = Number(v);\n  return isFinite(n) ? n : '';\n}\n\nfunction json_(obj) {\n  return ContentService.createTextOutput(JSON.stringify(obj))\n    .setMimeType(ContentService.MimeType.JSON);\n}\n";
+
+const T = {
+  hu: {
+    appName: 'Qmetify',
+    home_lead: 'Q-módszertani felmérések tervezése és önálló kitöltése, előválogatással és kvázi-normális rácsra rendezéssel.',
+    home_design: 'Felmérés tervezése', home_demo: 'Mintafelmérés kipróbálása',
+    home_note: 'A tervezés a böngésződben történik, szerver nélkül. A kitöltők válaszai a kutató saját Google-táblázatába érkeznek.',
+    f1t: 'Tervezés', f1: 'Kétnyelvű állításkészlet, rácseloszlás, kitöltési utasítás és utólagos kérdések egy helyen, ellenőrzéssel.',
+    f2t: 'Kitöltés', f2: 'Előválogatás három kupacba, majd rendezés a rácson a szélektől befelé. A félbehagyott kitöltés folytatható.',
+    f3t: 'Elemzés', f3: 'A válaszok táblázatba érkeznek, és egy kattintással az R qmethod csomag számára olvasható mátrixszá alakíthatók.',
+    step_presort: 'Előválogatás', step_sort: 'Rendezés', step_post: 'Befejezés',
+    start: 'Kezdés', next: 'Tovább', back: 'Vissza', cancel: 'Mégse',
+    consent_check: 'Elolvastam a tájékoztatót, és hozzájárulok a részvételhez.',
+    how_title: 'Hogyan zajlik a kitöltés?',
+    how_1: 'Egyenként elolvassa az állításokat, és mindegyiket három kupac egyikébe sorolja: {d}, {n} vagy {a}.',
+    how_2: 'Ezután a kupacokból a rácsra rendezi őket. A két szélre azok kerülnek, amelyekkel a legerősebben egyetért, illetve a legkevésbé ért egyet.',
+    how_3: 'Végül a szélekre került állításoknál röviden leírja, miért döntött így.',
+    how_grid: 'A rács alakja. Minden oszlopba pontosan annyi állítás kerül, ahány mező van benne.',
+    the_question: 'A kitöltés kérdése',
+    begin_presort: 'Előválogatás indítása',
+    presort_help: 'Olvassa el az állítást, és döntse el, melyik kupacba tartozik. Nincs jó vagy rossz válasz.',
+    keys_hint: 'Billentyűzettel is válaszolhat:',
+    prev_card: 'Előző állítás',
+    sort_help: 'Válasszon ki egy kártyát, majd kattintson egy üres mezőre vagy egy oszlop fejlécére. Asztali gépen húzással is mozgathatja. Egy elhelyezett kártyára kattintva áthelyezheti, egy másikra kattintva felcserélheti őket.',
+    hint_agree: 'Kezdje ezzel a kupaccal: {p}. A legerősebben egyetértett állításokat tegye a jobb szélső oszlopba, majd haladjon befelé.',
+    hint_disagree: 'Most ez a kupac következik: {p}. Ezeket a bal szélső oszloptól befelé haladva helyezze el.',
+    hint_neutral: 'Végül ennek a kupacnak az állításait tegye a maradék, jellemzően középső mezőkbe: {p}.',
+    hint_done: 'Minden állítás a helyén van. Nézze át még egyszer a rácsot, és ha kell, cseréljen. Ha elégedett, lépjen tovább.',
+    remaining: 'Még {n} állítás vár elhelyezésre.',
+    selected: 'Kijelölve', return_pile: 'Vissza a kupacba',
+    pile_empty: 'Ebben a kupacban nincs több elhelyezendő kártya.',
+    col_full: 'Ez az oszlop már megtelt. Előbb vegyen ki belőle egy kártyát.',
+    narrow: 'A rendezés nagyobb képernyőn kényelmesebb. A rács oldalra görgethető.',
+    empty_slot: 'Üres mező, {s} oszlop',
+    post_help: 'Ezeket az állításokat helyezte a skála két szélére. Írja le röviden, miért.',
+    most_agree: 'Leginkább egyetért', most_disagree: 'Legkevésbé ért egyet',
+    comment_ph: 'Az indoklása', optional: 'nem kötelező', required: 'kötelező',
+    choose: 'Válasszon',
+    required_missing: 'Kérjük, töltse ki a pirossal jelölt mezőket.',
+    submit: 'Válaszok beküldése', sending: 'Küldés folyamatban',
+    send_err: 'A beküldés nem sikerült. Ellenőrizze az internetkapcsolatot, majd próbálja újra. Ha továbbra sem sikerül, töltse le a válaszait, és küldje el e-mailben a kutatónak.',
+    no_endpoint: 'Ehhez a felméréshez nincs beállítva beküldési cím. Töltse le a válaszait, és küldje el e-mailben a kutatónak.',
+    retry: 'Újrapróbálás', download_answers: 'Válaszok letöltése',
+    preview_banner: 'Előnézet. A válaszok nem kerülnek beküldésre.',
+    back_designer: 'Vissza a tervezőhöz', back_home: 'Vissza a kezdőlapra',
+    preview_done: 'Az előnézet végére ért. A beküldendő adatcsomagot letöltheti ellenőrzésre.',
+    download_payload: 'Adatcsomag letöltése',
+    new_response: 'Új kitöltés indítása ezen az eszközön',
+    new_confirm: 'Új kitöltést indít ezen az eszközön? Az előző kitöltés már be van küldve.',
+    restart: 'Kitöltés újrakezdése',
+    restart_confirm: 'Biztosan újrakezdi? Az eddigi válogatás és rendezés elvész.',
+    resumed: 'A korábban megkezdett kitöltés folytatódik.',
+    load_err_t: 'A felmérés nem tölthető be',
+    load_err: 'A link hiányos vagy sérült lehet. Másolja be újra a teljes linket, vagy kérjen újat a kutatótól.',
+    thanks_default: 'Köszönjük a részvételt! Válaszait rögzítettük.',
+    // designer
+    d_new: 'Új, üres felmérés', d_new_confirm: 'Új, üres felmérést kezdesz? A jelenlegi tervezet elvész, ha nem mentetted le.',
+    d_file_save: 'Mentés fájlba', d_file_load: 'Betöltés fájlból', d_file_saved: 'A terv elmentve. Tedd a fájlt a saját Drive-odra.',
+    d_file_warn: 'Ne feledd: a terved csak ebben a böngészőben van meg. Mentsd fájlba, hogy más gépen is folytathasd.',
+    ds_t: 'Hogyan szeretnéd kezdeni?', ds_intro: 'A terv fájlba mentése a legbiztosabb módja annak, hogy ne vesszen el a munkád. Innen mindig folytathatod, akár másik gépen is.',
+    ds_resume: 'Folytatás a böngészőben mentett tervvel', ds_resume_help: 'Ezen a gépen található egy korábbi tervezet:',
+    ds_load: 'Terv betöltése fájlból', ds_load_help: 'Egy korábban elmentett .json tervfájl megnyitása.',
+    ds_new: 'Új, üres felmérés', ds_new_help: 'Tiszta lappal indulsz.', ds_demo: 'Mintafelmérés megnyitása', ds_demo_help: 'Egy kész példa, amit átírhatsz.',
+    ds_untitled: 'névtelen terv', ds_st: 'állítás',
+    gdpr_btn: 'Adatkezelési tájékoztató javaslat beszúrása', gdpr_note: 'Ez egy általános javaslat, nem jogi tanács. Töltsd ki a [szögletes zárójeles] részeket, és egyeztess az intézményed adatvédelmi tisztviselőjével, mielőtt kiküldöd.',
+    gdpr_replace: 'A mező már tartalmaz szöveget. Felülírod a javaslattal?',
+    gdpr_text: 'Kutatás címe: [a kutatás címe]\nKutató (adatkezelő): [név, intézmény, e-mail-cím]\n\nA kutatás célja: [egy-két mondat a kutatás céljáról].\n\nMit kérünk Öntől? Egy Q-módszertani rangsoroló feladatot, amely kb. [xx] percet vesz igénybe, és néhány háttérkérdést ([pl. beosztás, tapasztalat]).\n\nMilyen adatokat rögzítünk? A rangsorolás eredményét, a megadott indoklásokat és háttérválaszokat, valamint a kitöltés időpontját és időtartamát. Nevet és e-mail-címet nem kérünk. A kitöltéshez egy véletlenszerűen generált azonosító tartozik, amely közvetlenül nem azonosítja Önt. [Ha a háttérkérdések együtt azonosíthatóvá tehetik a válaszadót, ezt itt jelezze.]\n\nAdatkezelés jogalapja: az Ön önkéntes hozzájárulása (GDPR 6. cikk (1) a) pont). A hozzájárulás a kitöltés megkezdése előtt a jelölőnégyzet bepipálásával adható meg.\n\nAz adatok tárolása és megőrzése: a válaszok a kutató által kezelt Google-táblázatba kerülnek ([tárhely helye, pl. Google Drive, az EU-n kívüli szolgáltatóra vonatkozó megjegyzés]). Az adatokhoz a kutató és [további jogosultak] fér hozzá. Megőrzési idő: [pl. a kutatás lezárásáig, legfeljebb x évig].\n\nAz eredmények felhasználása: az adatokat összesítve, azonosításra alkalmatlan módon publikáljuk. Egyedi válaszok nem kerülnek nyilvánosságra.\n\nÖn jogai: a részvétel önkéntes, a kitöltést bármikor megszakíthatja. Kérheti a hozzáférést, helyesbítést, törlést és az adatkezelés korlátozását, feltéve, hogy az azonosító alapján a válasza visszakereshető. Mivel a kitöltés nem kér nevet, a törlési kérelemhez meg kell adnia a kitöltés időpontját. Panasszal fordulhat a Nemzeti Adatvédelmi és Információszabadság Hatósághoz (NAIH, naih.hu).\n\nKapcsolat és adatvédelmi kérdések: [kutató e-mail-címe], [intézményi adatvédelmi tisztviselő elérhetősége].',
+    d_saved: 'A tervezet automatikusan mentődik ebben a böngészőben.',
+    tab_basics: 'Alapadatok', tab_texts: 'Szövegek', tab_statements: 'Állítások', tab_grid: 'Rács', tab_post: 'Utólagos kérdések', tab_share: 'Ellenőrzés és megosztás',
+    b_intro: 'A felmérés azonosítása, nyelvei és az, hogy hova érkezzenek a válaszok.',
+    f_id: 'Felmérés azonosítója', f_id_help: 'Rövid, ékezet nélküli név. Ez lesz a Google-táblázat lapjának neve is.',
+    f_title: 'Cím', f_langs: 'Kitöltési nyelvek', f_deflang: 'Alapértelmezett nyelv',
+    f_endpoint: 'Beküldési cím (Google Apps Script)', f_endpoint_help: 'A telepített Apps Script webalkalmazás /exec végű címe. A beállítás lépései az Ellenőrzés és megosztás fülön találhatók.',
+    test_conn: 'Kapcsolat tesztelése', conn_ok: 'A kapcsolat működik.', conn_bad: 'Nem sikerült elérni a címet. Ellenőrizd, hogy a telepítésnél a hozzáférés „Bárki” legyen.',
+    f_random: 'Az állítások sorrendje kitöltőnként véletlenszerű legyen (ajánlott)',
+    t_intro: 'A kitöltők ezeket a szövegeket látják. Minden bekapcsolt nyelven töltsd ki őket.',
+    f_intro: 'Bevezető', f_intro_help: 'A kutatás célja, a kitöltés várható hossza, a kutató elérhetősége. Az üres sor új bekezdést kezd.',
+    f_consent: 'Adatkezelési tájékoztató és hozzájárulás', f_consent_help: 'Ha kitöltöd, a résztvevőnek jelölőnégyzettel kell hozzájárulnia a folytatáshoz.',
+    f_coi: 'Kitöltési utasítás (condition of instruction)', f_coi_help: 'Az a kérdés, amely szerint a résztvevő rendez. Ez végig látható a kitöltés során.',
+    f_thanks: 'Köszönő szöveg',
+    f_piles: 'Előválogatási kupacok neve', f_ends: 'A rács két végének felirata', f_left: 'Bal szél', f_right: 'Jobb szél',
+    s_intro: 'A Q-készlet. Egy állítás egy gondolatot tartalmazzon, és lehetőleg 150 karakternél ne legyen hosszabb, hogy a rácson is olvasható maradjon.',
+    add_st: 'Állítás hozzáadása', renumber: 'Azonosítók újraszámozása',
+    renumber_confirm: 'Újraszámozod az azonosítókat? Ha már vannak beérkezett válaszok, ezzel összekeverednek az oszlopok.',
+    bulk: 'Tömeges beillesztés', bulk_help: 'Soronként egy állítás. A kiválasztott nyelvi mezőbe kerülnek, a meglévő állítások sorrendjében.',
+    bulk_lang: 'Nyelv', bulk_mode_append: 'Új állításokként hozzáad', bulk_mode_fill: 'Meglévő állítások kitöltése sorrendben',
+    bulk_apply: 'Beillesztés', st_count: '{n} állítás', del: 'Törlés', up: 'Fel', down: 'Le',
+    g_intro: 'A kvázi-normális eloszlás. A mezők összesen pontosan annyian legyenek, ahány állítás van.',
+    g_range: 'Skála', g_shape: 'Alak', g_steep: 'Csúcsos', g_normal: 'Közepes', g_flat: 'Lapos',
+    g_suggest: 'Javaslat alkalmazása', g_heights: 'Mezők száma oszloponként',
+    g_sum_ok: 'Rendben: {c} mező, {n} állítás', g_sum_bad: '{c} mező, de {n} állítás van. A különbség: {d}',
+    p_intro: 'A rendezés utáni lépés. A szélső állítások indoklása a Q-interpretáció legfontosabb minőségi adata.',
+    f_extreme: 'Indoklás kérése a szélső állításokhoz', f_depth: 'Hány szélső oszlopra vonatkozzon',
+    depth1: 'A két legszélső oszlop', depth2: 'Mindkét oldalon két-két oszlop',
+    f_req_comments: 'Az indoklás legyen kötelező',
+    questions: 'Kérdések a résztvevőről', add_q: 'Kérdés hozzáadása',
+    q_type: 'Típus', q_text: 'Rövid szöveg', q_textarea: 'Hosszú szöveg', q_number: 'Szám', q_select: 'Választás listából',
+    q_label: 'Kérdés', q_options: 'Válaszlehetőségek (soronként egy)', q_required: 'Kötelező', q_id: 'Oszlopnév',
+    sh_intro: 'Nézd át a hibákat, próbáld ki a kitöltést, majd készítsd el a résztvevőknek küldendő linket.',
+    v_ok: 'Nem találtam hibát.',
+    preview: 'Kitöltés kipróbálása', dl_cfg: 'Terv mentése fájlba', load_cfg: 'Terv betöltése fájlból', load_bad: 'A fájl nem olvasható Qmetify tervként.',
+    link_t: 'Kitöltési link', link_help: 'A teljes felmérés a linkben utazik, ezért hosszú. Rövidítheted linkrövidítővel. Ha a tervet később módosítod, új linket kell készítened.',
+    link_base: 'A Qmetify webcíme', link_make: 'Link készítése', copy: 'Másolás', copied: 'Másolva', open: 'Megnyitás',
+    link_file_warn: 'A link csak akkor működik a résztvevőknél, ha a Qmetify egy webcímen fut (például GitHub Pages).',
+    alt_t: 'Rövid link fájlból', alt_help: 'Ha a tervet surveys/{id}.json néven feltöltöd a Qmetify mappájába, a rövid link ez lesz:',
+    gs_t: 'Google-táblázat beállítása', gs_help: 'Egyszer kell elvégezni kutatónként. Utána minden felmérésed ugyanabba a táblázatba, külön lapokra érkezik.',
+    gs_1: 'Hozz létre egy új Google-táblázatot.', gs_2: 'Bővítmények menü, Apps Script. Töröld a mintakódot, és illeszd be az alábbi kódot, majd mentsd.',
+    gs_3: 'Telepítés, Új telepítés, típus: Webalkalmazás. Végrehajtás: Én. Hozzáférés: Bárki. Engedélyezd a kért jogosultságokat.',
+    gs_4: 'A kapott /exec végű címet másold az Alapadatok fül Beküldési cím mezőjébe, és teszteld a kapcsolatot.',
+    gs_5: 'Elemzéshez a táblázat Qmetify menüjében készíthetsz qmethod-mátrixot, amelyet CSV-ként tölthetsz le.',
+    copy_code: 'Kód másolása',
+    v_id: 'Hiányzik a felmérés azonosítója.', v_nost: 'Még nincs egyetlen állítás sem.', v_few: 'Kevés az állítás ({n}). A Q-készletek jellemzően 30 és 60 állítás között vannak.',
+    v_sttext: '{id}: hiányzik a szöveg ({l}).', v_sum: 'A rács mezőinek száma ({c}) nem egyezik az állítások számával ({n}).',
+    v_asym: 'A rács nem szimmetrikus. Ez megengedett, de érdemes tudatosan dönteni róla.',
+    v_endpoint: 'Nincs beküldési cím. A résztvevők csak fájlként tudják letölteni a válaszaikat.',
+    v_coi: 'Hiányzik a kitöltési utasítás ({l}).', v_title: 'Hiányzik a cím ({l}).', v_intro: 'Hiányzik a bevezető ({l}).',
+    v_dupid: 'Ismétlődő állításazonosító: {id}.', v_qid: 'Ismétlődő vagy üres kérdésazonosító.', v_opts: 'Egy listás kérdésnek nincsenek válaszlehetőségei.',
+    v_long: '{n} állítás hosszabb 200 karakternél, ezek a rácson nehezen olvashatók.',
+    fix: 'Javítás'
+  },
+  en: {
+    appName: 'Qmetify',
+    home_lead: 'Design and self-administered completion of Q-methodology studies, with a pre-sort and a quasi-normal forced distribution.',
+    home_design: 'Design a study', home_demo: 'Try the sample study',
+    home_note: 'Designing happens in your browser, with no server. Responses go to the researcher’s own Google Sheet.',
+    f1t: 'Design', f1: 'Bilingual Q-set, grid distribution, condition of instruction and post-sort questions in one place, with validation.',
+    f2t: 'Completion', f2: 'Pre-sort into three piles, then sort onto the grid from the extremes inward. Interrupted sessions can be resumed.',
+    f3t: 'Analysis', f3: 'Responses arrive in a spreadsheet and turn into a matrix for the R qmethod package in one click.',
+    step_presort: 'Pre-sort', step_sort: 'Q-sort', step_post: 'Finish',
+    start: 'Start', next: 'Continue', back: 'Back', cancel: 'Cancel',
+    consent_check: 'I have read the information above and agree to take part.',
+    how_title: 'How does it work?',
+    how_1: 'You read the statements one by one and put each into one of three piles: {d}, {n} or {a}.',
+    how_2: 'Then you sort them from the piles onto the grid. The two ends hold the statements you agree with most and least.',
+    how_3: 'Finally, you briefly explain your choices for the statements at the ends.',
+    how_grid: 'The shape of the grid. Each column takes exactly as many statements as it has slots.',
+    the_question: 'The sorting question',
+    begin_presort: 'Start the pre-sort',
+    presort_help: 'Read the statement and decide which pile it belongs to. There are no right or wrong answers.',
+    keys_hint: 'You can also use the keyboard:',
+    prev_card: 'Previous statement',
+    sort_help: 'Select a card, then click an empty slot or a column heading. On a computer you can also drag. Click a placed card to move it, or click another card to swap them.',
+    hint_agree: 'Start with this pile: {p}. Put the statements you agree with most in the rightmost column, then work inward.',
+    hint_disagree: 'Next, this pile: {p}. Place these from the leftmost column inward.',
+    hint_neutral: 'Finally, place this pile in the remaining slots, usually in the middle: {p}.',
+    hint_done: 'Every statement is placed. Look over the grid once more and swap cards if needed. When you are happy, continue.',
+    remaining: '{n} statements left to place.',
+    selected: 'Selected', return_pile: 'Back to pile',
+    pile_empty: 'No cards left to place from this pile.',
+    col_full: 'This column is full. Take a card out of it first.',
+    narrow: 'Sorting is easier on a larger screen. The grid scrolls sideways.',
+    empty_slot: 'Empty slot, column {s}',
+    post_help: 'You placed these statements at the two ends of the scale. Please briefly explain why.',
+    most_agree: 'Most agree', most_disagree: 'Most disagree',
+    comment_ph: 'Your reasoning', optional: 'optional', required: 'required',
+    choose: 'Choose',
+    required_missing: 'Please fill in the fields marked in red.',
+    submit: 'Submit responses', sending: 'Sending',
+    send_err: 'Submission failed. Check your internet connection and try again. If it still fails, download your responses and email them to the researcher.',
+    no_endpoint: 'This study has no submission address. Please download your responses and email them to the researcher.',
+    retry: 'Try again', download_answers: 'Download responses',
+    preview_banner: 'Preview. Responses will not be submitted.',
+    back_designer: 'Back to the designer', back_home: 'Back to the start page',
+    preview_done: 'You reached the end of the preview. You can download the data package for checking.',
+    download_payload: 'Download data package',
+    new_response: 'Start a new response on this device',
+    new_confirm: 'Start a new response on this device? The previous one has already been submitted.',
+    restart: 'Start over',
+    restart_confirm: 'Start over? Your pre-sort and sort so far will be lost.',
+    resumed: 'Continuing where you left off.',
+    load_err_t: 'The study could not be loaded',
+    load_err: 'The link may be incomplete or damaged. Paste the full link again, or ask the researcher for a new one.',
+    thanks_default: 'Thank you for taking part! Your responses have been recorded.',
+    d_new: 'New empty study', d_new_confirm: 'Start a new empty study? The current draft will be lost unless you saved it.',
+    d_file_save: 'Save to file', d_file_load: 'Load from file', d_file_saved: 'Design saved. Put the file in your own Drive.',
+    d_file_warn: 'Remember: your design exists only in this browser. Save it to a file so you can continue on another computer.',
+    ds_t: 'How would you like to start?', ds_intro: 'Saving your design to a file is the safest way not to lose your work. You can always continue from it, even on another computer.',
+    ds_resume: 'Continue with the design saved in this browser', ds_resume_help: 'A previous draft was found on this computer:',
+    ds_load: 'Load design from file', ds_load_help: 'Open a previously saved .json design file.',
+    ds_new: 'New empty study', ds_new_help: 'Start with a clean slate.', ds_demo: 'Open the sample study', ds_demo_help: 'A finished example you can edit.',
+    ds_untitled: 'untitled design', ds_st: 'statements',
+    gdpr_btn: 'Insert data protection notice draft', gdpr_note: 'This is a general suggestion, not legal advice. Fill in the [bracketed] parts and check with your institution’s data protection officer before sending it out.',
+    gdpr_replace: 'The field already has text. Replace it with the draft?',
+    gdpr_text: 'Study title: [study title]\nResearcher (data controller): [name, institution, email]\n\nPurpose of the study: [one or two sentences].\n\nWhat we ask of you: a Q-methodology ranking task of about [xx] minutes and a few background questions ([e.g. position, experience]).\n\nWhat data we record: the result of your ranking, the reasons and background answers you give, and the time and duration of completion. We do not ask for your name or email. A randomly generated ID is attached to your response, which does not identify you directly. [If the background questions could together identify a respondent, say so here.]\n\nLegal basis: your voluntary consent (GDPR Article 6(1)(a)). You give it by ticking the box before you start.\n\nStorage and retention: responses are stored in a Google Sheet managed by the researcher ([storage location, e.g. Google Drive, note on providers outside the EU]). Access: the researcher and [other authorised persons]. Retention: [e.g. until the end of the study, at most x years].\n\nUse of results: data are published only in aggregate, in a form that cannot identify you. Individual responses are not made public.\n\nYour rights: participation is voluntary and you can stop at any time. You may request access, rectification, erasure and restriction of processing, provided your response can be traced through the ID. Because the survey does not ask for a name, an erasure request must include the time of completion. You may lodge a complaint with your national data protection authority.\n\nContact and data protection questions: [researcher email], [institutional data protection officer contact].',
+    d_saved: 'The draft is saved automatically in this browser.',
+    tab_basics: 'Basics', tab_texts: 'Texts', tab_statements: 'Statements', tab_grid: 'Grid', tab_post: 'Post-sort', tab_share: 'Check and share',
+    b_intro: 'Study identity, languages and where responses should go.',
+    f_id: 'Study ID', f_id_help: 'Short name without accents. It also becomes the sheet name in Google Sheets.',
+    f_title: 'Title', f_langs: 'Languages', f_deflang: 'Default language',
+    f_endpoint: 'Submission address (Google Apps Script)', f_endpoint_help: 'The /exec address of the deployed Apps Script web app. Setup steps are on the Check and share tab.',
+    test_conn: 'Test connection', conn_ok: 'The connection works.', conn_bad: 'Could not reach the address. Make sure access was set to “Anyone” when deploying.',
+    f_random: 'Randomise statement order for each participant (recommended)',
+    t_intro: 'Participants see these texts. Fill them in for every enabled language.',
+    f_intro: 'Introduction', f_intro_help: 'Purpose, expected duration, researcher contact. A blank line starts a new paragraph.',
+    f_consent: 'Data protection notice and consent', f_consent_help: 'If filled in, participants must tick a consent box to continue.',
+    f_coi: 'Condition of instruction', f_coi_help: 'The question participants sort by. It stays visible throughout.',
+    f_thanks: 'Thank-you text',
+    f_piles: 'Pre-sort pile names', f_ends: 'Grid end labels', f_left: 'Left end', f_right: 'Right end',
+    s_intro: 'The Q-set. Each statement should hold one idea and ideally stay under 150 characters so it remains readable on the grid.',
+    add_st: 'Add statement', renumber: 'Renumber IDs',
+    renumber_confirm: 'Renumber the IDs? If responses have already arrived, columns will no longer match.',
+    bulk: 'Bulk paste', bulk_help: 'One statement per line. Lines go into the chosen language field, in the order of existing statements.',
+    bulk_lang: 'Language', bulk_mode_append: 'Add as new statements', bulk_mode_fill: 'Fill existing statements in order',
+    bulk_apply: 'Paste', st_count: '{n} statements', del: 'Delete', up: 'Up', down: 'Down',
+    g_intro: 'The quasi-normal distribution. The total number of slots must equal the number of statements.',
+    g_range: 'Scale', g_shape: 'Shape', g_steep: 'Steep', g_normal: 'Medium', g_flat: 'Flat',
+    g_suggest: 'Apply suggestion', g_heights: 'Slots per column',
+    g_sum_ok: 'OK: {c} slots, {n} statements', g_sum_bad: '{c} slots but {n} statements. Difference: {d}',
+    p_intro: 'The step after sorting. Explanations of the extreme statements are the key qualitative data for interpretation.',
+    f_extreme: 'Ask for explanations of extreme statements', f_depth: 'How many end columns',
+    depth1: 'The two outermost columns', depth2: 'Two columns on each side',
+    f_req_comments: 'Make explanations required',
+    questions: 'Questions about the participant', add_q: 'Add question',
+    q_type: 'Type', q_text: 'Short text', q_textarea: 'Long text', q_number: 'Number', q_select: 'Choice from list',
+    q_label: 'Question', q_options: 'Options (one per line)', q_required: 'Required', q_id: 'Column name',
+    sh_intro: 'Review the issues, try the survey yourself, then create the link for participants.',
+    v_ok: 'No issues found.',
+    preview: 'Try the survey', dl_cfg: 'Save design to file', load_cfg: 'Load design from file', load_bad: 'The file is not a readable Qmetify design.',
+    link_t: 'Participant link', link_help: 'The whole study travels inside the link, so it is long. You can shorten it with a link shortener. If you change the design, create a new link.',
+    link_base: 'Web address of Qmetify', link_make: 'Create link', copy: 'Copy', copied: 'Copied', open: 'Open',
+    link_file_warn: 'The link only works for participants if Qmetify runs at a web address (for example GitHub Pages).',
+    alt_t: 'Short link from a file', alt_help: 'If you upload the design as surveys/{id}.json into the Qmetify folder, the short link will be:',
+    gs_t: 'Setting up Google Sheets', gs_help: 'Done once per researcher. After that, every study arrives in the same spreadsheet, on separate sheets.',
+    gs_1: 'Create a new Google Sheet.', gs_2: 'Extensions menu, Apps Script. Delete the sample code, paste the code below and save.',
+    gs_3: 'Deploy, New deployment, type: Web app. Execute as: Me. Who has access: Anyone. Grant the requested permissions.',
+    gs_4: 'Copy the /exec address into the Submission address field on the Basics tab and test the connection.',
+    gs_5: 'For analysis, use the Qmetify menu in the spreadsheet to build a qmethod matrix and download it as CSV.',
+    copy_code: 'Copy code',
+    v_id: 'The study ID is missing.', v_nost: 'There are no statements yet.', v_few: 'Few statements ({n}). Q-sets usually have 30 to 60.',
+    v_sttext: '{id}: text missing ({l}).', v_sum: 'The number of grid slots ({c}) does not match the number of statements ({n}).',
+    v_asym: 'The grid is not symmetric. This is allowed, but make it a deliberate choice.',
+    v_endpoint: 'No submission address. Participants can only download their responses as a file.',
+    v_coi: 'Condition of instruction missing ({l}).', v_title: 'Title missing ({l}).', v_intro: 'Introduction missing ({l}).',
+    v_dupid: 'Duplicate statement ID: {id}.', v_qid: 'Duplicate or empty question ID.', v_opts: 'A list question has no options.',
+    v_long: '{n} statements are longer than 200 characters and hard to read on the grid.',
+    fix: 'Fix'
+  }
+};
+
+let uiLang = (navigator.language || 'hu').toLowerCase().startsWith('hu') ? 'hu' : 'en';
+let mode = 'home';
+const root = document.getElementById('app');
+
+function t(key, vars) {
+  let s = (T[uiLang] && T[uiLang][key]) ?? T.hu[key] ?? key;
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k === 'text') el.textContent = v;
+    else if (k === 'style') el.style.cssText = v;
+    else if (k === 'value') el.value = v;
+    else if (k === 'checked') el.checked = !!v;
+    else if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2).toLowerCase(), v);
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat(Infinity)) {
+    if (c == null || c === false) continue;
+    el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return el;
+}
+function mount(...nodes) { root.replaceChildren(...nodes.flat().filter(Boolean)); }
+function paras(text, cls) {
+  return h('div', { class: 'text-block ' + (cls || '') },
+    String(text || '').split(/\n\s*\n/).filter(p => p.trim()).map(p => h('p', {}, p.trim().split('\n').flatMap((ln, i) => i ? [h('br'), ln] : [ln]))));
+}
+function pad(n, w) { return String(n).padStart(w, '0'); }
+function slug(s) {
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+}
+function uuid() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16);
+  });
+}
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function hash(str) { let x = 0x811c9dc5; for (let i = 0; i < str.length; i++) { x ^= str.charCodeAt(i); x = Math.imul(x, 0x01000193); } return (x >>> 0).toString(36); }
+function toast(msg) {
+  const el = h('div', { class: 'toast', role: 'status' }, msg);
+  document.body.append(el); setTimeout(() => el.remove(), 2400);
+}
+function download(obj, filename) {
+  const blob = new Blob([typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const a = h('a', { href: URL.createObjectURL(blob), download: filename });
+  document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+async function copyText(s) {
+  try { await navigator.clipboard.writeText(s); toast(t('copied')); }
+  catch { const ta = h('textarea', { value: s }); document.body.append(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast(t('copied')); }
+}
+function lsGet(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage unavailable */ } }
+function lsDel(k) { try { localStorage.removeItem(k); } catch { } }
+function colorVars(pile) { const [c, s] = PILE_COLOR[pile] || PILE_COLOR.neutral; return `--c:var(${c});--cs:var(${s})`; }
+function scoreVars(score) { return colorVars(score < 0 ? 'disagree' : score > 0 ? 'agree' : 'neutral'); }
+function fmtScore(s) { return s > 0 ? '+' + s : s < 0 ? '−' + Math.abs(s) : '0'; }
+function langSwitch(langs, cur, onPick) {
+  if (langs.length < 2) return null;
+  return h('div', { class: 'seg', role: 'group', 'aria-label': 'Language / Nyelv' },
+    langs.map(l => h('button', { 'aria-pressed': String(l === cur), onclick: () => onPick(l) }, l.toUpperCase())));
+}
+function brandMark() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 32 24'); svg.setAttribute('width', '30'); svg.setAttribute('height', '22'); svg.setAttribute('aria-hidden', 'true');
+  [[1, 9, 'var(--dis)'], [8, 4, 'var(--neu)'], [8, 12, 'var(--neu)'], [15, 4, 'var(--neu)'], [15, 12, 'var(--neu)'], [22, 9, 'var(--agree)']].forEach(([x, y, c]) => {
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', x); r.setAttribute('y', y); r.setAttribute('width', 6); r.setAttribute('height', 6); r.setAttribute('rx', 1); r.style.fill = c;
+    svg.append(r);
+  });
+  return svg;
+}
+
+/* ---------- config ---------- */
+const DEFAULT_LABELS = {
+  disagree: { hu: 'Nem értek egyet', en: 'Disagree' },
+  neutral: { hu: 'Semleges vagy bizonytalan', en: 'Neutral or unsure' },
+  agree: { hu: 'Egyetértek', en: 'Agree' },
+  left: { hu: 'Leginkább nem értek egyet', en: 'Most disagree' },
+  right: { hu: 'Leginkább egyetértek', en: 'Most agree' }
+};
+
+function normalizeConfig(input) {
+  const c = JSON.parse(JSON.stringify(input || {}));
+  c.format = 'q-muhely'; c.version = 1;
+  c.id = slug(c.id) || 'q-felmeres';
+  c.languages = (Array.isArray(c.languages) ? c.languages : ['hu']).filter(l => LANGS.includes(l));
+  if (!c.languages.length) c.languages = ['hu'];
+  if (!c.languages.includes(c.defaultLang)) c.defaultLang = c.languages[0];
+  c.title = c.title || {};
+  c.texts = c.texts || {};
+  for (const k of ['intro', 'consent', 'instruction', 'thanks']) c.texts[k] = c.texts[k] || {};
+  c.labels = c.labels || {};
+  for (const k in DEFAULT_LABELS) {
+    c.labels[k] = c.labels[k] || {};
+    for (const l of LANGS) if (!c.labels[k][l]) c.labels[k][l] = DEFAULT_LABELS[k][l];
+  }
+  const g = c.grid || {};
+  let min = Number.isInteger(g.min) ? g.min : -3, max = Number.isInteger(g.max) ? g.max : 3;
+  if (max <= min) { min = -3; max = 3; }
+  const k = max - min + 1;
+  let hs = Array.isArray(g.heights) ? g.heights.map(x => Math.max(0, parseInt(x, 10) || 0)) : [];
+  while (hs.length < k) hs.push(1); hs = hs.slice(0, k);
+  c.grid = { min, max, heights: hs };
+  c.statements = (Array.isArray(c.statements) ? c.statements : []).map((s, i) => {
+    const o = { id: String(s.id || ('S' + pad(i + 1, 2))) };
+    for (const l of LANGS) o[l] = String(s[l] || '');
+    return o;
+  });
+  c.post = Object.assign({ extremeComments: true, extremeDepth: 1, requireComments: false, questions: [] }, c.post || {});
+  c.post.extremeDepth = c.post.extremeDepth === 2 ? 2 : 1;
+  c.post.questions = (c.post.questions || []).map((q, i) => ({
+    id: String(q.id || ('q' + (i + 1))), type: ['text', 'textarea', 'number', 'select'].includes(q.type) ? q.type : 'text',
+    required: !!q.required, label: q.label || {}, options: q.options || {}
+  }));
+  c.settings = Object.assign({ randomize: true }, c.settings || {});
+  c.endpoint = String(c.endpoint || '').trim();
+  return c;
+}
+
+function configVersion(c) {
+  return hash(JSON.stringify([c.id, c.statements.map(s => s.id), c.grid]));
+}
+
+const b64u = {
+  enc(bytes) {
+    let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  },
+  dec(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/'); while (str.length % 4) str += '=';
+    const bin = atob(str), out = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  }
+};
+async function packConfig(cfg) {
+  const bytes = new TextEncoder().encode(JSON.stringify(cfg));
+  if ('CompressionStream' in window) {
+    const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+    return 'z' + b64u.enc(new Uint8Array(await new Response(stream).arrayBuffer()));
+  }
+  return 'j' + b64u.enc(bytes);
+}
+async function unpackConfig(s) {
+  const kind = s[0]; let bytes = b64u.dec(s.slice(1));
+  if (kind === 'z') {
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+  } else if (kind !== 'j') throw new Error('unknown encoding');
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+function suggestHeights(n, min, max, shape) {
+  const k = max - min + 1;
+  if (k < 3 || n < k) return null;
+  const sig = { steep: k / 5.4, normal: k / 4.2, flat: k / 2.9 }[shape] || k / 4.2;
+  const c = (k - 1) / 2;
+  const w = Array.from({ length: k }, (_, i) => Math.exp(-((i - c) ** 2) / (2 * sig * sig)));
+  const W = w.reduce((a, b) => a + b, 0);
+  const hs = w.map(x => Math.max(1, Math.round(x / W * n)));
+  const half = Math.floor(k / 2), odd = k % 2 === 1, mid = odd ? half : -1;
+  for (let i = 0; i < half; i++) { const m = Math.max(1, Math.round((hs[i] + hs[k - 1 - i]) / 2)); hs[i] = hs[k - 1 - i] = m; }
+  const sum = () => hs.reduce((a, b) => a + b, 0);
+  const inner = i => i === half - 1 ? (odd ? hs[mid] : Infinity) : hs[i + 1];
+  const outer = i => i === 0 ? 1 : hs[i - 1];
+  let diff = n - sum(), guard = 0;
+  while (diff !== 0 && guard++ < 2000) {
+    if (Math.abs(diff) % 2 === 1) {
+      const idx = odd ? mid : half;
+      if (diff < 0 && hs[idx] <= 1) break;
+      hs[idx] += Math.sign(diff);
+    } else if (diff > 0) {
+      let done = false;
+      for (let i = half - 1; i >= 0; i--) { if (hs[i] + 1 <= inner(i)) { hs[i]++; hs[k - 1 - i]++; done = true; break; } }
+      if (!done) { if (odd) hs[mid] += 2; else { hs[half - 1]++; hs[half]++; } }
+    } else {
+      let done = false;
+      if (odd && hs[mid] - 2 >= hs[half - 1]) { hs[mid] -= 2; done = true; }
+      if (!done) for (let i = half - 1; i >= 0; i--) { if (hs[i] > 1 && hs[i] - 1 >= outer(i)) { hs[i]--; hs[k - 1 - i]--; done = true; break; } }
+      if (!done) break;
+    }
+    diff = n - sum();
+  }
+  // monotonicity repair (sum-preserving): heights must not decrease toward the centre
+  for (let pass = 0; pass < 50; pass++) {
+    let changed = false;
+    if (odd && half >= 1 && hs[mid] < hs[half - 1] && hs[half - 1] > 1) { hs[mid] += 2; hs[half - 1]--; hs[half + 1]--; changed = true; }
+    for (let i = half - 1; i >= 1; i--) {
+      if (hs[i] < hs[i - 1]) { hs[i]++; hs[k - 1 - i]++; hs[i - 1]--; hs[k - i]--; changed = true; }
+    }
+    if (!changed) break;
+  }
+  return hs;
+}
+
+const DEMO = {
+  id: 'rovid-lanc-demo', languages: ['hu', 'en'], defaultLang: 'hu', endpoint: '',
+  title: { hu: 'Rövid élelmiszer-ellátási láncok: vélemények és nézőpontok', en: 'Short food supply chains: views and perspectives' },
+  texts: {
+    intro: {
+      hu: 'Ez egy rövid mintafelmérés a Qmetify kipróbálásához.\n\nA kitöltés körülbelül 10 percet vesz igénybe. Arra vagyunk kíváncsiak, hogyan látja a helyi termelők és a vásárlók közötti közvetlen értékesítést.',
+      en: 'This is a short sample study for trying out Qmetify.\n\nIt takes about 10 minutes. We are interested in how you see direct selling between local producers and consumers.'
+    },
+    consent: {
+      hu: 'A válaszok anonimak, kizárólag kutatási célra használjuk fel őket. A részvétel önkéntes, és bármikor abbahagyható.',
+      en: 'Responses are anonymous and used for research purposes only. Participation is voluntary and you may stop at any time.'
+    },
+    instruction: {
+      hu: 'Mennyire ért egyet az alábbi állításokkal a rövid élelmiszer-ellátási láncokról?',
+      en: 'To what extent do you agree with the following statements about short food supply chains?'
+    },
+    thanks: { hu: 'Köszönjük, hogy kipróbálta a mintafelmérést!', en: 'Thank you for trying the sample study!' }
+  },
+  grid: { min: -3, max: 3, heights: [1, 2, 3, 4, 3, 2, 1] },
+  statements: [
+    ['A helyi termelőtől vásárolt élelmiszer megbízhatóbb minőségű.', 'Food bought from local producers is of more reliable quality.'],
+    ['A rövid ellátási láncok elsősorban a jómódú városi vásárlóknak szólnak.', 'Short supply chains mainly serve affluent urban consumers.'],
+    ['A termelői piacok árai nem versenyképesek a szupermarketekével.', 'Farmers’ market prices cannot compete with supermarkets.'],
+    ['A közvetlen értékesítés a kistermelők túlélésének kulcsa.', 'Direct selling is key to the survival of small farmers.'],
+    ['A digitális platformok többet segítenek a termelőknek, mint a fizikai piacok.', 'Digital platforms help producers more than physical markets do.'],
+    ['A helyi élelmiszer vásárlása a közösséget is erősíti.', 'Buying local food also strengthens the community.'],
+    ['A termelők nem értenek eléggé a marketinghez.', 'Producers lack sufficient marketing skills.'],
+    ['Állami támogatás nélkül a rövid láncok nem életképesek.', 'Without public support, short chains are not viable.'],
+    ['A logisztika a rövid ellátási láncok legnagyobb gyengesége.', 'Logistics is the greatest weakness of short supply chains.'],
+    ['A vásárlók nem hajlandók többet fizetni a helyi termékért.', 'Consumers are not willing to pay more for local products.'],
+    ['A közétkeztetésnek helyi alapanyagokra kellene épülnie.', 'Public catering should be built on local ingredients.'],
+    ['A „helyi termék” címke többet ígér, mint amit teljesít.', 'The “local product” label promises more than it delivers.'],
+    ['A termelői együttműködés fontosabb, mint az egyéni márkaépítés.', 'Producer cooperation matters more than individual branding.'],
+    ['A rövid láncok környezeti előnyei túlértékeltek.', 'The environmental benefits of short chains are overrated.'],
+    ['A termelővel való személyes kapcsolat bizalmat teremt.', 'A personal relationship with the producer builds trust.'],
+    ['A nagy kereskedelmi láncoknak is lehet szerepük a helyi termékek terjesztésében.', 'Large retail chains can also play a role in distributing local products.']
+  ].map(([hu, en], i) => ({ id: 'S' + pad(i + 1, 2), hu, en })),
+  post: {
+    extremeComments: true, extremeDepth: 1, requireComments: false,
+    questions: [
+      { id: 'szerep', type: 'select', required: true, label: { hu: 'Milyen szerepben kapcsolódik leginkább a témához?', en: 'In what role are you mainly connected to the topic?' },
+        options: { hu: ['Vásárló', 'Termelő', 'Kereskedő vagy feldolgozó', 'Kutató vagy szakértő', 'Egyéb'], en: ['Consumer', 'Producer', 'Retailer or processor', 'Researcher or expert', 'Other'] } },
+      { id: 'megjegyzes', type: 'textarea', required: false, label: { hu: 'Van még valami, amit hozzáfűzne?', en: 'Is there anything else you would like to add?' }, options: {} }
+    ]
+  },
+  settings: { randomize: true }
+};
+
+function blankConfig() {
+  return normalizeConfig({
+    id: 'uj-q-felmeres', languages: ['hu', 'en'], defaultLang: 'hu',
+    title: { hu: '', en: '' },
+    texts: {
+      intro: { hu: '', en: '' }, consent: { hu: '', en: '' }, instruction: { hu: '', en: '' },
+      thanks: { hu: T.hu.thanks_default, en: T.en.thanks_default }
+    },
+    grid: { min: -4, max: 4, heights: [2, 3, 4, 5, 6, 5, 4, 3, 2] },
+    statements: [], post: { extremeComments: true, extremeDepth: 1, questions: [] }
+  });
+}
+
+/* ---------- participant ---------- */
+let P = null;
+
+function startParticipant(rawCfg, opts = {}) {
+  const cfg = normalizeConfig(rawCfg);
+  const ver = configVersion(cfg);
+  const key = 'qmuhely:resp:' + cfg.id + ':' + ver;
+  let st = opts.preview ? null : lsGet(key);
+  const resumed = !!(st && st.stage !== 'intro' && st.stage !== 'done');
+  if (!st || !Array.isArray(st.grid) || st.grid.length !== cfg.grid.heights.length) st = newParticipantState(cfg);
+  P = { cfg, ver, key, st, preview: !!opts.preview, from: opts.from || null, tab: null, sel: null, sending: false, error: null, invalid: new Set(),
+    map: Object.fromEntries(cfg.statements.map(s => [s.id, s])) };
+  mode = 'participant';
+  renderParticipant();
+  if (resumed) toast(t('resumed'));
+}
+
+function newParticipantState(cfg) {
+  const ids = cfg.statements.map(s => s.id);
+  const pref = (navigator.language || '').slice(0, 2).toLowerCase();
+  return {
+    pid: uuid(), stage: 'intro', lang: cfg.languages.includes(pref) ? pref : cfg.defaultLang,
+    order: cfg.settings.randomize ? shuffle(ids.slice()) : ids.slice(),
+    presort: {}, pIndex: 0, grid: cfg.grid.heights.map(n => Array(n).fill(null)),
+    comments: {}, answers: {}, consent: false, moves: 0, times: { start: Date.now() }
+  };
+}
+
+function saveP() { if (!P.preview) lsSet(P.key, P.st); }
+function L(obj) { const c = P ? P.cfg : null; if (!obj) return ''; return obj[P ? P.st.lang : uiLang] || (c && obj[c.defaultLang]) || Object.values(obj).find(Boolean) || ''; }
+function stText(id) { return L(P.map[id]); }
+function pileLabel(p) { return L(P.cfg.labels[p]); }
+
+function go(stage) {
+  const st = P.st, now = Date.now();
+  if (stage === 'presort' && !st.times.presortStart) st.times.presortStart = now;
+  if (stage === 'sort' && !st.times.sortStart) { st.times.presortEnd = st.times.presortEnd || now; st.times.sortStart = now; }
+  if (stage === 'post') st.times.sortEnd = now;
+  st.stage = stage; P.sel = null; saveP();
+  renderParticipant(); window.scrollTo(0, 0);
+}
+
+function renderParticipant() {
+  const { cfg, st } = P;
+  uiLang = st.lang;
+  document.documentElement.lang = st.lang;
+  document.title = L(cfg.title) || t('appName');
+  const gw = document.querySelector('.gridwrap'), gx = gw ? gw.scrollLeft : 0, y = window.scrollY;
+  const stepIdx = { presort: 0, sort: 1, post: 2 }[st.stage];
+  const header = h('header', { class: 'bar' },
+    h('div', { class: 'brand', style: 'cursor:default' }, brandMark(), h('span', {}, L(cfg.title) || t('appName'))),
+    h('div', { class: 'bar-right' },
+      stepIdx !== undefined ? h('ol', { class: 'steps', 'aria-label': 'Progress' },
+        ['step_presort', 'step_sort', 'step_post'].map((k, i) => h('li', { class: i === stepIdx ? 'on' : i < stepIdx ? 'done' : '', 'aria-current': i === stepIdx ? 'step' : null }, t(k)))) : null,
+      langSwitch(cfg.languages, st.lang, l => { st.lang = l; saveP(); renderParticipant(); })));
+  const banner = P.preview ? h('div', { class: 'banner' }, h('span', {}, t('preview_banner')),
+    h('button', { class: 'btn sm ghost', onclick: () => P.from === 'home' ? renderHome() : startDesigner() }, P.from === 'home' ? t('back_home') : t('back_designer'))) : null;
+  const views = { intro: vIntro, howto: vHowto, presort: vPresort, sort: vSort, post: vPost, done: vDone };
+  mount(header, banner, h('main', { class: 'wrap' + (st.stage === 'sort' ? '' : ' narrow') }, (views[st.stage] || vIntro)()));
+  const ngw = document.querySelector('.gridwrap');
+  if (ngw) {
+    ngw.scrollLeft = gx;
+    // first view of an empty grid: show the right (most agree) end, where sorting starts
+    if (!gw && P.st.grid.flat().every(x => !x)) ngw.scrollLeft = ngw.scrollWidth;
+  }
+  if (st.stage === 'sort') window.scrollTo(0, y);
+}
+
+function restartLink() {
+  if (P.preview || P.st.stage === 'intro') return null;
+  return h('button', { class: 'btn link small', onclick: () => { if (confirm(t('restart_confirm'))) { P.st = newParticipantState(P.cfg); saveP(); renderParticipant(); } } }, t('restart'));
+}
+
+function vIntro() {
+  const { cfg, st } = P;
+  const hasConsent = !!L(cfg.texts.consent).trim();
+  const btn = h('button', { class: 'btn', disabled: hasConsent && !st.consent, onclick: () => go('howto') }, t('start'));
+  return [
+    h('h1', { class: 'ptitle' }, L(cfg.title)),
+    paras(L(cfg.texts.intro)),
+    hasConsent ? h('div', { class: 'consent' }, paras(L(cfg.texts.consent)),
+      h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: st.consent, onchange: e => { st.consent = e.target.checked; btn.disabled = !st.consent; saveP(); } }), t('consent_check'))) : null,
+    h('div', { class: 'navrow' }, h('span'), btn)
+  ];
+}
+
+function miniGrid(cfg) {
+  return h('div', { class: 'mini', 'aria-hidden': 'true' }, cfg.grid.heights.map((n, i) => {
+    const s = cfg.grid.min + i;
+    return h('div', { class: 'mc', style: scoreVars(s) }, h('span', { class: 'ml' }, fmtScore(s)), Array.from({ length: n }, () => h('span', { class: 'mb' })));
+  }));
+}
+
+function vHowto() {
+  const { cfg } = P;
+  return [
+    h('h2', {}, t('how_title')),
+    h('ol', { class: 'howlist' },
+      h('li', {}, t('how_1', { d: pileLabel('disagree'), n: pileLabel('neutral'), a: pileLabel('agree') })),
+      h('li', {}, t('how_2')), h('li', {}, t('how_3'))),
+    h('p', { class: 'muted small', style: 'margin-bottom:0' }, t('the_question')),
+    h('p', { class: 'coi' }, L(cfg.texts.instruction)),
+    h('p', { class: 'muted small', style: 'margin:22px 0 0' }, t('how_grid')),
+    miniGrid(cfg),
+    h('div', { class: 'navrow' }, h('button', { class: 'btn ghost', onclick: () => go('intro') }, t('back')), h('button', { class: 'btn', onclick: () => go('presort') }, t('begin_presort')))
+  ];
+}
+
+function assignPile(pile) {
+  const st = P.st, id = st.order[st.pIndex];
+  if (!id) return;
+  st.presort[id] = pile; st.pIndex++;
+  if (st.pIndex >= st.order.length) { go('sort'); return; }
+  saveP(); renderParticipant();
+}
+
+function vPresort() {
+  const { cfg, st } = P;
+  const n = st.order.length, i = Math.min(st.pIndex, n - 1), id = st.order[i];
+  const counts = { disagree: 0, neutral: 0, agree: 0 };
+  Object.values(st.presort).forEach(p => counts[p]++);
+  return [
+    h('p', { class: 'coi-small' }, L(cfg.texts.instruction)),
+    h('p', { class: 'muted small' }, t('presort_help')),
+    h('div', { class: 'progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': n, 'aria-valuenow': i + 1 }, h('span', { style: `width:${(i / n) * 100}%` })),
+    h('p', { class: 'muted small', style: 'margin:6px 0 0;text-align:right' }, `${i + 1} / ${n}`),
+    h('div', { class: 'pcard', 'aria-live': 'polite' }, stText(id)),
+    h('div', { class: 'piles' }, PILES.map((p, k) => h('button', {
+      class: 'pilebtn', style: colorVars(p), 'aria-pressed': String(st.presort[id] === p), onclick: () => assignPile(p)
+    }, h('span', { class: 'pn' }, pileLabel(p)), h('span', { class: 'pk' }, h('span', {}, String(counts[p])), h('span', { class: 'kbd' }, String(k + 1)))))),
+    h('div', { class: 'center-row' },
+      h('button', { class: 'btn ghost sm', disabled: st.pIndex === 0, onclick: () => { st.pIndex = Math.max(0, st.pIndex - 1); saveP(); renderParticipant(); } }, t('prev_card')),
+      h('span', { class: 'muted small' }, t('keys_hint'), ' ', h('span', { class: 'kbd' }, '1'), ' ', h('span', { class: 'kbd' }, '2'), ' ', h('span', { class: 'kbd' }, '3'))),
+    h('div', { class: 'navrow' }, restartLink())
+  ];
+}
+
+document.addEventListener('keydown', e => {
+  if (mode !== 'participant' || !P || P.st.stage !== 'presort') return;
+  if (e.target.closest && e.target.closest('input,textarea,select')) return;
+  const k = { '1': 'disagree', '2': 'neutral', '3': 'agree' }[e.key];
+  if (k) { e.preventDefault(); assignPile(k); }
+});
+
+/* grid operations */
+function locate(id) {
+  const g = P.st.grid;
+  for (let c = 0; c < g.length; c++) { const r = g[c].indexOf(id); if (r >= 0) return { c, r }; }
+  return null;
+}
+function placeAt(id, c, r) {
+  const g = P.st.grid, from = locate(id), occ = g[c][r];
+  if (occ === id) return;
+  if (from) g[from.c][from.r] = occ || null;
+  g[c][r] = id;
+  P.st.moves++; P.sel = null; saveP(); renderParticipant();
+}
+function placeInColumn(id, c) {
+  const r = P.st.grid[c].indexOf(null);
+  if (r < 0) { toast(t('col_full')); return; }
+  placeAt(id, c, r);
+}
+function toTray(id) {
+  const from = locate(id); if (!from) return;
+  P.st.grid[from.c][from.r] = null; P.st.moves++; P.sel = null; saveP(); renderParticipant();
+}
+function unplaced() {
+  const placed = new Set(P.st.grid.flat().filter(Boolean));
+  return P.st.order.filter(id => !placed.has(id));
+}
+
+function cardEl(id, extra) {
+  const pile = P.st.presort[id] || 'neutral';
+  return h('button', Object.assign({
+    class: 'scard' + (P.sel === id ? ' sel' : ''), style: colorVars(pile), draggable: 'true', title: stText(id),
+    'aria-pressed': String(P.sel === id),
+    ondragstart: e => { e.dataTransfer.setData('text/plain', id); e.dataTransfer.effectAllowed = 'move'; }
+  }, extra || {}), h('span', { class: 'tx' }, stText(id)));
+}
+function dropZone(el, onDrop) {
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('over'); });
+  el.addEventListener('dragleave', () => el.classList.remove('over'));
+  el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('over'); const id = e.dataTransfer.getData('text/plain'); if (id && P.map[id]) onDrop(id); });
+  return el;
+}
+
+function vSort() {
+  const { cfg, st } = P;
+  const rest = unplaced();
+  const left = { disagree: [], neutral: [], agree: [] };
+  rest.forEach(id => left[st.presort[id] || 'neutral'].push(id));
+  if (!P.tab || (!left[P.tab].length && rest.length)) P.tab = ['agree', 'disagree', 'neutral'].find(p => left[p].length) || 'agree';
+  const hint = !rest.length ? t('hint_done')
+    : left.agree.length ? t('hint_agree', { p: pileLabel('agree') })
+    : left.disagree.length ? t('hint_disagree', { p: pileLabel('disagree') })
+    : t('hint_neutral', { p: pileLabel('neutral') });
+
+  const grid = h('div', { class: 'qgrid' }, cfg.grid.heights.map((n, c) => {
+    const score = cfg.grid.min + c, filled = st.grid[c].filter(Boolean).length;
+    return h('div', { class: 'qcol', style: scoreVars(score) },
+      h('button', { class: 'qhead', title: fmtScore(score), onclick: () => { if (P.sel) placeInColumn(P.sel, c); } },
+        h('span', { class: 'sc' }, fmtScore(score)), h('span', { class: 'cnt' + (filled === n ? ' full' : '') }, `${filled}/${n}`)),
+      st.grid[c].map((id, r) => {
+        if (id) {
+          const slot = h('div', { class: 'slot filled' }, cardEl(id, { onclick: () => {
+            if (P.sel && P.sel !== id) placeAt(P.sel, c, r);
+            else { P.sel = P.sel === id ? null : id; renderParticipant(); }
+          } }));
+          return dropZone(slot, did => placeAt(did, c, r));
+        }
+        return dropZone(h('button', { class: 'slot empty', 'aria-label': t('empty_slot', { s: fmtScore(score) }), onclick: () => { if (P.sel) placeAt(P.sel, c, r); } }), did => placeAt(did, c, r));
+      }));
+  }));
+
+  const tray = h('section', { class: 'tray', 'aria-label': 'Piles' },
+    h('div', { class: 'tabs', role: 'tablist' }, ['agree', 'disagree', 'neutral'].map(p => h('button', {
+      class: 'tab', role: 'tab', 'aria-selected': String(P.tab === p), style: colorVars(p), onclick: () => { P.tab = p; renderParticipant(); }
+    }, h('span', { class: 'dot' }), pileLabel(p), h('span', { class: 'muted' }, String(left[p].length))))),
+    dropZone(h('div', { class: 'traylist', role: 'tabpanel' },
+      left[P.tab].length ? left[P.tab].map(id => cardEl(id, { onclick: () => { P.sel = P.sel === id ? null : id; renderParticipant(); } }))
+        : h('p', { class: 'muted small', style: 'margin:8px 4px' }, rest.length ? t('pile_empty') : t('hint_done'))), toTray));
+
+  const selbar = P.sel ? h('div', { class: 'selbar', role: 'region', 'aria-label': t('selected') },
+    h('div', { class: 'st' }, h('strong', { class: 'small', style: 'font-family:var(--sans);display:block;color:var(--muted)' }, t('selected')), stText(P.sel)),
+    h('div', { class: 'acts' },
+      locate(P.sel) ? h('button', { class: 'btn ghost sm', onclick: () => toTray(P.sel) }, t('return_pile')) : null,
+      h('button', { class: 'btn ghost sm', onclick: () => { P.sel = null; renderParticipant(); } }, t('cancel')))) : null;
+
+  return [
+    h('p', { class: 'coi-small' }, L(cfg.texts.instruction)),
+    h('p', { class: 'muted small', style: 'max-width:78ch' }, t('sort_help')),
+    h('p', { class: 'narrow-note muted small' }, t('narrow')),
+    h('div', { class: 'hint', role: 'status' }, hint, rest.length ? ' ' + t('remaining', { n: rest.length }) : ''),
+    h('div', { class: 'gridwrap' + (P.sel ? ' picking' : '') }, grid,
+      h('div', { class: 'ends' }, h('span', { class: 'l' }, L(cfg.labels.left)), h('span', { class: 'r' }, L(cfg.labels.right)))),
+    tray,
+    h('div', { class: 'navrow' }, restartLink() || h('span'), h('button', { class: 'btn', disabled: rest.length > 0, onclick: () => go('post') }, t('next'))),
+    selbar
+  ];
+}
+
+function extremeIds() {
+  const { cfg, st } = P, k = cfg.grid.heights.length, d = Math.min(cfg.post.extremeDepth, Math.floor(k / 2));
+  const right = [], leftSide = [];
+  for (let i = 0; i < d; i++) {
+    st.grid[k - 1 - i].forEach(id => id && right.push({ id, score: cfg.grid.max - i }));
+    st.grid[i].forEach(id => id && leftSide.push({ id, score: cfg.grid.min + i }));
+  }
+  return { right, left: leftSide };
+}
+
+function vPost() {
+  const { cfg, st } = P;
+  const ex = cfg.post.extremeComments ? extremeIds() : { right: [], left: [] };
+  const inv = P.invalid;
+  const commentBlock = (items, title, score) => items.length ? h('section', { class: 'ext', style: scoreVars(score) },
+    h('h3', {}, title),
+    items.map(({ id, score: s }) => h('div', { class: 'cm', style: scoreVars(s) },
+      h('p', { class: 'q' }, h('span', { class: 'sc' }, fmtScore(s)), stText(id)),
+      h('textarea', { rows: 2, 'aria-label': t('comment_ph'), placeholder: t('comment_ph') + (cfg.post.requireComments ? '' : ` (${t('optional')})`),
+        class: inv.has('c:' + id) ? 'invalid' : null, value: st.comments[id] || '',
+        oninput: e => { st.comments[id] = e.target.value; saveP(); } })))) : null;
+
+  const qs = cfg.post.questions.map(q => {
+    const fid = 'q_' + q.id, bad = inv.has('q:' + q.id), val = st.answers[q.id] ?? '';
+    const onv = e => { st.answers[q.id] = e.target.value; saveP(); };
+    let input;
+    if (q.type === 'select') {
+      input = h('select', { id: fid, class: bad ? 'invalid' : null, onchange: onv },
+        h('option', { value: '' }, t('choose')),
+        (q.options[st.lang] || q.options[cfg.defaultLang] || []).map((o, i) => {
+          const canon = (q.options[cfg.defaultLang] || [])[i] ?? o;
+          return h('option', { value: canon, selected: val === canon }, o);
+        }));
+    } else if (q.type === 'textarea') input = h('textarea', { id: fid, rows: 3, class: bad ? 'invalid' : null, value: val, oninput: onv });
+    else input = h('input', { id: fid, type: q.type === 'number' ? 'number' : 'text', class: bad ? 'invalid' : null, value: val, oninput: onv });
+    return h('div', { class: 'qfield' }, h('label', { class: 'lb', for: fid }, L(q.label), ' ', h('span', { class: 'muted small', style: 'font-weight:500' }, `(${q.required ? t('required') : t('optional')})`)), input);
+  });
+
+  const actions = [];
+  if (P.error) {
+    actions.push(h('p', { class: 'err', role: 'alert' }, P.error === 'noendpoint' ? t('no_endpoint') : P.error === 'invalid' ? t('required_missing') : t('send_err')));
+  }
+  const canRetry = P.error && P.error !== 'invalid' && P.error !== 'noendpoint';
+  return [
+    ex.right.length || ex.left.length ? h('p', { class: 'text-block', style: 'font-size:17px' }, t('post_help')) : null,
+    commentBlock(ex.right, t('most_agree'), 1),
+    commentBlock(ex.left, t('most_disagree'), -1),
+    qs.length ? h('section', { class: 'ext' }, qs) : null,
+    actions,
+    h('div', { class: 'navrow' },
+      h('button', { class: 'btn ghost', onclick: () => { P.error = null; go('sort'); } }, t('back')),
+      h('div', { class: 'row' },
+        P.error && P.error !== 'invalid' ? h('button', { class: 'btn ghost', onclick: () => download(buildPayload(), `${cfg.id}_${st.pid.slice(0, 8)}.json`) }, t('download_answers')) : null,
+        P.error === 'noendpoint' ? null : h('button', { class: 'btn', disabled: P.sending, onclick: submit }, P.sending ? t('sending') : canRetry ? t('retry') : t('submit'))))
+  ];
+}
+
+function buildPayload() {
+  const { cfg, st } = P, tm = st.times, now = Date.now();
+  const sort = {};
+  st.grid.forEach((col, c) => col.forEach(id => { if (id) sort[id] = cfg.grid.min + c; }));
+  const ex = cfg.post.extremeComments ? extremeIds() : { right: [], left: [] };
+  const comments = {};
+  [...ex.right, ...ex.left].forEach(({ id }) => { if ((st.comments[id] || '').trim()) comments[id] = st.comments[id].trim(); });
+  const sec = (a, b) => (a && b) ? Math.round((b - a) / 1000) : null;
+  return {
+    format: 'q-muhely-response', surveyId: cfg.id, configVersion: P.ver, participantId: st.pid, lang: st.lang,
+    startedAt: new Date(tm.start).toISOString(), submittedAt: new Date(now).toISOString(),
+    durations: { presortSec: sec(tm.presortStart, tm.presortEnd), sortSec: sec(tm.sortStart, tm.sortEnd), totalSec: sec(tm.start, now) },
+    moves: st.moves, grid: { min: cfg.grid.min, max: cfg.grid.max, heights: cfg.grid.heights },
+    statementIds: cfg.statements.map(s => s.id), sort, presort: st.presort, comments, answers: st.answers,
+    userAgent: navigator.userAgent
+  };
+}
+
+async function submit() {
+  const { cfg, st } = P;
+  P.invalid = new Set();
+  if (cfg.post.extremeComments && cfg.post.requireComments) {
+    const ex = extremeIds();
+    [...ex.right, ...ex.left].forEach(({ id }) => { if (!(st.comments[id] || '').trim()) P.invalid.add('c:' + id); });
+  }
+  cfg.post.questions.forEach(q => { if (q.required && !String(st.answers[q.id] ?? '').trim()) P.invalid.add('q:' + q.id); });
+  if (P.invalid.size) { P.error = 'invalid'; renderParticipant(); document.querySelector('.invalid')?.focus(); return; }
+  P.error = null;
+  if (P.preview) { st.times.submitted = Date.now(); P.lastPayload = buildPayload(); go('done'); return; }
+  if (!cfg.endpoint) { P.error = 'noendpoint'; renderParticipant(); return; }
+  P.sending = true; renderParticipant();
+  try {
+    const res = await fetch(cfg.endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(buildPayload()) });
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'failed');
+    P.sending = false; st.times.submitted = Date.now(); go('done');
+  } catch (e) {
+    P.sending = false; P.error = 'send'; renderParticipant();
+  }
+}
+
+function vDone() {
+  const { cfg } = P;
+  const mark = h('div', { class: 'done-mark', 'aria-hidden': 'true' }, brandMark());
+  mark.firstChild.setAttribute('width', '64'); mark.firstChild.setAttribute('height', '48');
+  return [
+    mark,
+    h('h1', {}, L(cfg.texts.thanks) || t('thanks_default')),
+    P.preview ? [h('p', {}, t('preview_done')), h('div', { class: 'row' },
+      h('button', { class: 'btn', onclick: () => download(P.lastPayload || buildPayload(), `${cfg.id}_preview.json`) }, t('download_payload')),
+      h('button', { class: 'btn ghost', onclick: () => P.from === 'home' ? renderHome() : startDesigner() }, P.from === 'home' ? t('back_home') : t('back_designer')))]
+      : h('div', { class: 'navrow' }, h('button', { class: 'btn link small', onclick: () => { if (confirm(t('new_confirm'))) { P.st = newParticipantState(P.cfg); saveP(); renderParticipant(); } } }, t('new_response')))
+  ];
+}
+
+/* ---------- designer ---------- */
+const DRAFT_KEY = 'qmuhely:draft';
+let D = null;
+let saveTimer = null;
+let lastFileSave = 0;
+let dirtySinceSave = false;
+
+function startDesigner() {
+  mode = 'designer';
+  if (location.hash !== '#tervezo') history.replaceState(null, '', location.pathname + location.search + '#tervezo');
+  if (D) { renderDesigner(); return; }
+  renderDesignerStart();
+}
+function initDesigner(cfg) {
+  D = { cfg: normalizeConfig(cfg), tab: 'basics', link: '', base: defaultBase(), conn: null, bulk: { lang: 'hu', mode: 'append', text: '' } };
+  lastFileSave = Date.now(); dirtySinceSave = false;
+  lsSet(DRAFT_KEY, D.cfg);
+  renderDesigner();
+}
+function renderDesignerStart() {
+  document.documentElement.lang = uiLang;
+  document.title = t('appName');
+  const saved = lsGet(DRAFT_KEY);
+  const anyText = o => !!o && Object.values(o).some(v => typeof v === 'string' && v.trim());
+  const hasSaved = !!(saved && Array.isArray(saved.statements) && (saved.statements.length || anyText(saved.title) ||
+    (saved.texts && ['intro', 'consent', 'instruction'].some(k => anyText(saved.texts[k])))));
+  const fileInput = h('input', { type: 'file', accept: '.json,application/json', style: 'display:none', onchange: async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try { const j = JSON.parse(await f.text()); if (!j.statements || !j.grid) throw 0; initDesigner(j); }
+    catch { alert(t('load_bad')); }
+  } });
+  const card = (title, help, btn) => h('div', { class: 'field', style: 'border:1px solid var(--line);border-radius:6px;padding:16px 18px;background:var(--surface)' },
+    h('div', { class: 'lb' }, title), help ? h('p', { class: 'help' }, help) : null, btn);
+  const savedName = hasSaved ? ((saved.title && (saved.title[uiLang] || Object.values(saved.title).find(Boolean))) || saved.id || t('ds_untitled')) : '';
+  mount(
+    h('header', { class: 'bar' },
+      h('button', { class: 'brand', onclick: () => { history.replaceState(null, '', location.pathname); renderHome(); } }, brandMark(), t('appName')),
+      langSwitch(LANGS, uiLang, l => { uiLang = l; renderDesignerStart(); })),
+    h('main', { class: 'wrap narrow' },
+      h('h1', {}, t('ds_t')), h('p', { class: 'lead' }, t('ds_intro')),
+      card(t('ds_load'), t('ds_load_help'), h('button', { class: 'btn', onclick: () => fileInput.click() }, t('ds_load'))), fileInput,
+      hasSaved ? card(t('ds_resume'), t('ds_resume_help') + ' ' + savedName + ' (' + saved.statements.length + ' ' + t('ds_st') + ')',
+        h('button', { class: 'btn ghost', onclick: () => initDesigner(saved) }, t('ds_resume'))) : null,
+      card(t('ds_new'), t('ds_new_help'), h('button', { class: 'btn ghost', onclick: () => initDesigner(blankConfig()) }, t('ds_new'))),
+      card(t('ds_demo'), t('ds_demo_help'), h('button', { class: 'btn ghost', onclick: () => initDesigner(DEMO) }, t('ds_demo')))));
+}
+function defaultBase() { return location.href.split('#')[0].split('?')[0]; }
+function persist() { clearTimeout(saveTimer); saveTimer = setTimeout(() => lsSet(DRAFT_KEY, D.cfg), 300); D.link = ''; dirtySinceSave = true; }
+function saveToFile() { download(D.cfg, `${D.cfg.id}.json`); lastFileSave = Date.now(); dirtySinceSave = false; toast(t('d_file_saved')); }
+window.addEventListener('beforeunload', e => {
+  if (mode === 'designer' && D) { clearTimeout(saveTimer); lsSet(DRAFT_KEY, D.cfg); }
+  if (mode === 'designer' && D && dirtySinceSave) { e.preventDefault(); e.returnValue = ''; }
+});
+function rerender() { persist(); renderDesigner(); }
+
+function validate(c) {
+  const out = { basics: [], texts: [], statements: [], grid: [], post: [], share: [] };
+  const E = (tab, msg) => out[tab].push({ lvl: 'e', msg }), W = (tab, msg) => out[tab].push({ lvl: 'w', msg });
+  if (!c.id) E('basics', t('v_id'));
+  c.languages.forEach(l => {
+    const U = l.toUpperCase();
+    if (!(c.title[l] || '').trim()) W('basics', t('v_title', { l: U }));
+    if (!(c.texts.instruction[l] || '').trim()) E('texts', t('v_coi', { l: U }));
+    if (!(c.texts.intro[l] || '').trim()) W('texts', t('v_intro', { l: U }));
+  });
+  if (!c.endpoint) W('basics', t('v_endpoint'));
+  const n = c.statements.length;
+  if (!n) E('statements', t('v_nost'));
+  else if (n < 20) W('statements', t('v_few', { n }));
+  const seen = new Set();
+  c.statements.forEach(s => {
+    if (seen.has(s.id)) E('statements', t('v_dupid', { id: s.id })); seen.add(s.id);
+    c.languages.forEach(l => { if (!(s[l] || '').trim()) E('statements', t('v_sttext', { id: s.id, l: l.toUpperCase() })); });
+  });
+  const long = c.statements.filter(s => c.languages.some(l => (s[l] || '').length > 200)).length;
+  if (long) W('statements', t('v_long', { n: long }));
+  const cells = c.grid.heights.reduce((a, b) => a + b, 0);
+  if (cells !== n) E('grid', t('v_sum', { c: cells, n }));
+  const hs = c.grid.heights;
+  if (hs.some((x, i) => x !== hs[hs.length - 1 - i]) || c.grid.min !== -c.grid.max) W('grid', t('v_asym'));
+  const qids = c.post.questions.map(q => q.id.trim());
+  if (qids.some(x => !x) || new Set(qids).size !== qids.length) E('post', t('v_qid'));
+  if (c.post.questions.some(q => q.type === 'select' && !(q.options[c.defaultLang] || []).length)) E('post', t('v_opts'));
+  return out;
+}
+
+const TABS = ['basics', 'texts', 'statements', 'grid', 'post', 'share'];
+
+function renderDesigner() {
+  document.documentElement.lang = uiLang;
+  document.title = t('tab_' + D.tab) + ' | ' + t('appName');
+  const v = validate(D.cfg);
+  const header = h('header', { class: 'bar' },
+    h('button', { class: 'brand', onclick: () => { history.replaceState(null, '', location.pathname); renderHome(); } }, brandMark(), t('appName')),
+    h('div', { class: 'bar-right' },
+      h('button', { class: 'btn sm', onclick: saveToFile }, t('d_file_save')),
+      h('button', { class: 'btn ghost sm', onclick: () => { if (dirtySinceSave && !confirm(t('d_new_confirm'))) return; D = null; renderDesignerStart(); } }, t('d_file_load')),
+      h('button', { class: 'btn ghost sm', onclick: () => { if (confirm(t('d_new_confirm'))) { D.cfg = blankConfig(); D.tab = 'basics'; rerender(); } } }, t('d_new')),
+      langSwitch(LANGS, uiLang, l => { uiLang = l; renderDesigner(); })));
+  const nav = h('nav', { class: 'dnav', 'aria-label': 'Designer' }, TABS.map(tab => {
+    const errs = v[tab].filter(x => x.lvl === 'e').length, warns = v[tab].length - errs;
+    const flag = tab === 'statements' ? h('span', { class: 'flag ' + (errs ? 'e' : 'n') }, String(D.cfg.statements.length))
+      : errs ? h('span', { class: 'flag e' }, String(errs)) : warns ? h('span', { class: 'flag w' }, String(warns)) : null;
+    return h('button', { 'aria-current': String(D.tab === tab), onclick: () => { D.tab = tab; renderDesigner(); window.scrollTo(0, 0); } }, t('tab_' + tab), flag);
+  }));
+  const panels = { basics: pBasics, texts: pTexts, statements: pStatements, grid: pGrid, post: pPost, share: () => pShare(v) };
+  const warn = (dirtySinceSave && Date.now() - lastFileSave > 15 * 60 * 1000) ? h('p', { class: 'err small', style: 'margin:0 0 14px' }, t('d_file_warn')) : null;
+  mount(header, h('main', { class: 'wrap' }, h('div', { class: 'dz' }, nav, h('section', { class: 'dpanel' }, warn, panels[D.tab]()))));
+}
+
+function field(label, help, ...content) {
+  return h('div', { class: 'field' }, h('div', { class: 'lb' }, label), help ? h('p', { class: 'help' }, help) : null, content);
+}
+function langInputs(obj, { multiline = false, rows = 3, onChange } = {}) {
+  return D.cfg.languages.map(l => h('div', { class: 'lp' }, h('span', { class: 'ltag' }, l.toUpperCase()),
+    multiline ? h('textarea', { rows, value: obj[l] || '', 'aria-label': l, oninput: e => { obj[l] = e.target.value; persist(); onChange && onChange(); } })
+      : h('input', { type: 'text', value: obj[l] || '', 'aria-label': l, oninput: e => { obj[l] = e.target.value; persist(); onChange && onChange(); } })));
+}
+
+function pBasics() {
+  const c = D.cfg;
+  const connMsg = D.conn === 'ok' ? h('span', { class: 'status ok' }, t('conn_ok')) : D.conn === 'bad' ? h('span', { class: 'status bad' }, t('conn_bad')) : null;
+  return [
+    h('h2', {}, t('tab_basics')), h('p', { class: 'intro' }, t('b_intro')),
+    field(t('f_id'), t('f_id_help'), h('input', { type: 'text', value: c.id, onchange: e => { c.id = slug(e.target.value) || 'q-felmeres'; rerender(); } })),
+    field(t('f_langs'), null, h('div', { class: 'row' }, LANGS.map(l => h('label', { class: 'check', style: 'font-weight:500' },
+      h('input', { type: 'checkbox', checked: c.languages.includes(l), onchange: e => {
+        const on = e.target.checked;
+        if (on) c.languages = LANGS.filter(x => x === l || c.languages.includes(x));
+        else if (c.languages.length > 1) c.languages = c.languages.filter(x => x !== l);
+        if (!c.languages.includes(c.defaultLang)) c.defaultLang = c.languages[0];
+        rerender();
+      } }), l === 'hu' ? 'Magyar' : 'English')))),
+    c.languages.length > 1 ? field(t('f_deflang'), null, h('select', { style: 'max-width:220px', onchange: e => { c.defaultLang = e.target.value; rerender(); } },
+      c.languages.map(l => h('option', { value: l, selected: c.defaultLang === l }, l === 'hu' ? 'Magyar' : 'English')))) : null,
+    field(t('f_title'), null, langInputs(c.title)),
+    field(t('f_endpoint'), t('f_endpoint_help'),
+      h('input', { type: 'url', value: c.endpoint, placeholder: 'https://script.google.com/macros/s/.../exec', oninput: e => { c.endpoint = e.target.value.trim(); D.conn = null; persist(); } }),
+      h('div', { class: 'row', style: 'margin-top:10px' }, h('button', { class: 'btn ghost sm', onclick: testConn }, t('test_conn')), connMsg)),
+    field('', null, h('label', { class: 'check', style: 'font-weight:500' }, h('input', { type: 'checkbox', checked: c.settings.randomize, onchange: e => { c.settings.randomize = e.target.checked; persist(); } }), t('f_random')))
+  ];
+}
+async function testConn() {
+  try {
+    const r = await fetch(D.cfg.endpoint + (D.cfg.endpoint.includes('?') ? '&' : '?') + 'ping=1');
+    const j = await r.json(); D.conn = j && j.ok ? 'ok' : 'bad';
+  } catch { D.conn = 'bad'; }
+  renderDesigner();
+}
+
+function pTexts() {
+  const c = D.cfg;
+  return [
+    h('h2', {}, t('tab_texts')), h('p', { class: 'intro' }, t('t_intro')),
+    field(t('f_coi'), t('f_coi_help'), langInputs(c.texts.instruction, { multiline: true, rows: 2 })),
+    field(t('f_intro'), t('f_intro_help'), langInputs(c.texts.intro, { multiline: true, rows: 5 })),
+    field(t('f_consent'), t('f_consent_help'), langInputs(c.texts.consent, { multiline: true, rows: 4 }),
+      h('div', { class: 'row', style: 'margin:10px 0 0' }, h('button', { class: 'btn ghost sm', onclick: () => {
+        const has = c.languages.some(l => (c.texts.consent[l] || '').trim());
+        if (has && !confirm(t('gdpr_replace'))) return;
+        c.languages.forEach(l => { c.texts.consent[l] = T[l].gdpr_text; });
+        rerender();
+      } }, t('gdpr_btn'))),
+      h('p', { class: 'help', style: 'max-width:68ch' }, t('gdpr_note'))),
+    field(t('f_piles'), null, h('div', { class: 'two', style: 'grid-template-columns:repeat(3,1fr)' },
+      PILES.map(p => h('div', { style: colorVars(p) + ';border-top:4px solid var(--c);padding-top:8px' }, langInputs(c.labels[p]))))),
+    field(t('f_ends'), null, h('div', { class: 'two' },
+      h('div', {}, h('p', { class: 'help' }, t('f_left')), langInputs(c.labels.left)),
+      h('div', {}, h('p', { class: 'help' }, t('f_right')), langInputs(c.labels.right)))),
+    field(t('f_thanks'), null, langInputs(c.texts.thanks, { multiline: true, rows: 2 }))
+  ];
+}
+
+function nextStatementId() {
+  const nums = D.cfg.statements.map(s => parseInt(String(s.id).replace(/\D/g, ''), 10)).filter(Number.isFinite);
+  const n = (nums.length ? Math.max(...nums) : 0) + 1;
+  return 'S' + pad(n, 2);
+}
+
+function pStatements() {
+  const c = D.cfg, b = D.bulk;
+  if (!c.languages.includes(b.lang)) b.lang = c.languages[0];
+  const rows = c.statements.map((s, i) => h('div', { class: 'strow' },
+    h('div', { class: 'sid' }, s.id),
+    h('div', {}, c.languages.map(l => {
+      const cc = h('div', { class: 'cc' + ((s[l] || '').length > 200 ? ' long' : '') }, String((s[l] || '').length));
+      return h('div', {}, h('div', { class: 'lp', style: 'margin-bottom:0' }, h('span', { class: 'ltag' }, l.toUpperCase()),
+        h('textarea', { rows: 2, value: s[l] || '', 'aria-label': `${s.id} ${l}`, oninput: e => { s[l] = e.target.value; cc.textContent = String(e.target.value.length); cc.className = 'cc' + (e.target.value.length > 200 ? ' long' : ''); persist(); } })), cc);
+    })),
+    h('div', { class: 'sacts' },
+      h('button', { class: 'icon-btn', title: t('up'), 'aria-label': t('up'), disabled: i === 0, onclick: () => { [c.statements[i - 1], c.statements[i]] = [c.statements[i], c.statements[i - 1]]; rerender(); } }, '↑'),
+      h('button', { class: 'icon-btn', title: t('down'), 'aria-label': t('down'), disabled: i === c.statements.length - 1, onclick: () => { [c.statements[i + 1], c.statements[i]] = [c.statements[i], c.statements[i + 1]]; rerender(); } }, '↓'),
+      h('button', { class: 'icon-btn', title: t('del'), 'aria-label': t('del'), onclick: () => { c.statements.splice(i, 1); rerender(); } }, '✕'))));
+  return [
+    h('h2', {}, t('tab_statements')), h('p', { class: 'intro' }, t('s_intro')),
+    h('details', { class: 'box' }, h('summary', {}, t('bulk')),
+      h('p', { class: 'help', style: 'margin-top:8px' }, t('bulk_help')),
+      h('div', { class: 'row', style: 'margin-bottom:10px' },
+        h('label', { class: 'small' }, t('bulk_lang'), ' ', h('select', { style: 'width:auto', onchange: e => { b.lang = e.target.value; } }, c.languages.map(l => h('option', { value: l, selected: b.lang === l }, l.toUpperCase())))),
+        h('select', { style: 'width:auto', onchange: e => { b.mode = e.target.value; } },
+          h('option', { value: 'append', selected: b.mode === 'append' }, t('bulk_mode_append')),
+          h('option', { value: 'fill', selected: b.mode === 'fill' }, t('bulk_mode_fill')))),
+      h('textarea', { rows: 6, value: b.text, oninput: e => { b.text = e.target.value; } }),
+      h('div', { style: 'margin-top:10px' }, h('button', { class: 'btn sm', onclick: () => {
+        const lines = b.text.split('\n').map(x => x.replace(/^\s*(\d+[.)]|[-*•])\s*/, '').trim()).filter(Boolean);
+        if (!lines.length) return;
+        if (b.mode === 'fill') lines.forEach((ln, i) => { if (c.statements[i]) c.statements[i][b.lang] = ln; else { const s = { id: nextStatementId(), hu: '', en: '' }; s[b.lang] = ln; c.statements.push(s); } });
+        else lines.forEach(ln => { const s = { id: nextStatementId(), hu: '', en: '' }; s[b.lang] = ln; c.statements.push(s); });
+        b.text = ''; rerender();
+      } }, t('bulk_apply')))),
+    h('div', { class: 'row', style: 'justify-content:space-between;max-width:900px;margin-bottom:6px' },
+      h('strong', {}, t('st_count', { n: c.statements.length })),
+      h('button', { class: 'btn link small', onclick: () => { if (confirm(t('renumber_confirm'))) { c.statements.forEach((s, i) => { s.id = 'S' + pad(i + 1, 2); }); rerender(); } } }, t('renumber'))),
+    rows,
+    h('div', { style: 'border-top:1px solid var(--line);padding-top:14px;max-width:900px' },
+      h('button', { class: 'btn', onclick: () => { c.statements.push({ id: nextStatementId(), hu: '', en: '' }); rerender(); setTimeout(() => { const all = document.querySelectorAll('.strow textarea'); all[all.length - c.languages.length]?.focus(); }, 0); } }, t('add_st')))
+  ];
+}
+
+function pGrid() {
+  const c = D.cfg, g = c.grid, n = c.statements.length, k = g.max - g.min + 1;
+  const cells = g.heights.reduce((a, b) => a + b, 0);
+  D.shape = D.shape || 'normal';
+  const setRange = r => {
+    const old = g.heights.slice(); g.min = -r; g.max = r;
+    const s = n >= 2 * r + 1 ? suggestHeights(n, g.min, g.max, D.shape) : null;
+    g.heights = s || Array.from({ length: 2 * r + 1 }, (_, i) => old[i] || 1);
+    rerender();
+  };
+  return [
+    h('h2', {}, t('tab_grid')), h('p', { class: 'intro' }, t('g_intro')),
+    h('div', { class: 'row', style: 'margin-bottom:18px;gap:22px' },
+      h('label', { class: 'small', style: 'font-weight:600' }, t('g_range'), ' ',
+        h('select', { style: 'width:auto', onchange: e => setRange(parseInt(e.target.value, 10)) },
+          [2, 3, 4, 5, 6].map(r => h('option', { value: r, selected: g.max === r && g.min === -r }, `${fmtScore(-r)} … ${fmtScore(r)}`)))),
+      h('label', { class: 'small', style: 'font-weight:600' }, t('g_shape'), ' ',
+        h('select', { style: 'width:auto', onchange: e => { D.shape = e.target.value; } },
+          ['steep', 'normal', 'flat'].map(s => h('option', { value: s, selected: D.shape === s }, t('g_' + s))))),
+      h('button', { class: 'btn ghost sm', disabled: n < k, onclick: () => { const s = suggestHeights(n, g.min, g.max, D.shape); if (s) { g.heights = s; rerender(); } } }, t('g_suggest'))),
+    h('div', { class: 'lb', style: 'font-weight:600;font-size:14.5px' }, t('g_heights')),
+    h('div', { class: 'hts' }, g.heights.map((x, i) => h('label', { style: scoreVars(g.min + i) },
+      h('span', { style: 'color:var(--c)' }, fmtScore(g.min + i)),
+      h('input', { type: 'number', min: 0, max: 30, value: x, 'aria-label': fmtScore(g.min + i), onchange: e => { g.heights[i] = Math.max(0, parseInt(e.target.value, 10) || 0); rerender(); } })))),
+    h('span', { class: 'status ' + (cells === n ? 'ok' : 'bad') }, cells === n ? t('g_sum_ok', { c: cells, n }) : t('g_sum_bad', { c: cells, n, d: (cells > n ? '+' : '') + (cells - n) })),
+    miniGridFor(c)
+  ];
+}
+function miniGridFor(c) {
+  return h('div', { class: 'mini', 'aria-hidden': 'true', style: 'margin-top:22px' }, c.grid.heights.map((n, i) => {
+    const s = c.grid.min + i;
+    return h('div', { class: 'mc', style: scoreVars(s) }, h('span', { class: 'ml' }, fmtScore(s)), Array.from({ length: n }, () => h('span', { class: 'mb' })));
+  }));
+}
+
+function pPost() {
+  const c = D.cfg, p = c.post;
+  const qcards = p.questions.map((q, i) => h('div', { class: 'qcard' },
+    h('div', { class: 'row', style: 'justify-content:space-between;margin-bottom:10px' },
+      h('div', { class: 'row' },
+        h('label', { class: 'small', style: 'font-weight:600' }, t('q_id'), ' ', h('input', { type: 'text', style: 'width:150px', value: q.id, onchange: e => { q.id = e.target.value.replace(/[^\w-]/g, '_'); rerender(); } })),
+        h('label', { class: 'small', style: 'font-weight:600' }, t('q_type'), ' ', h('select', { style: 'width:auto', onchange: e => { q.type = e.target.value; rerender(); } },
+          ['text', 'textarea', 'number', 'select'].map(ty => h('option', { value: ty, selected: q.type === ty }, t('q_' + ty))))),
+        h('label', { class: 'check small', style: 'font-weight:500' }, h('input', { type: 'checkbox', checked: q.required, onchange: e => { q.required = e.target.checked; persist(); } }), t('q_required'))),
+      h('div', { class: 'row', style: 'gap:4px' },
+        h('button', { class: 'icon-btn', 'aria-label': t('up'), disabled: i === 0, onclick: () => { [p.questions[i - 1], p.questions[i]] = [p.questions[i], p.questions[i - 1]]; rerender(); } }, '↑'),
+        h('button', { class: 'icon-btn', 'aria-label': t('down'), disabled: i === p.questions.length - 1, onclick: () => { [p.questions[i + 1], p.questions[i]] = [p.questions[i], p.questions[i + 1]]; rerender(); } }, '↓'),
+        h('button', { class: 'icon-btn', 'aria-label': t('del'), onclick: () => { p.questions.splice(i, 1); rerender(); } }, '✕'))),
+    h('p', { class: 'help', style: 'margin:0 0 4px' }, t('q_label')), langInputs(q.label),
+    q.type === 'select' ? [h('p', { class: 'help', style: 'margin:10px 0 4px' }, t('q_options')),
+      c.languages.map(l => h('div', { class: 'lp' }, h('span', { class: 'ltag' }, l.toUpperCase()),
+        h('textarea', { rows: 4, value: (q.options[l] || []).join('\n'), oninput: e => { q.options[l] = e.target.value.split('\n').map(x => x.trim()).filter(Boolean); persist(); } })))] : null));
+  return [
+    h('h2', {}, t('tab_post')), h('p', { class: 'intro' }, t('p_intro')),
+    field('', null, h('label', { class: 'check', style: 'font-weight:500' }, h('input', { type: 'checkbox', checked: p.extremeComments, onchange: e => { p.extremeComments = e.target.checked; rerender(); } }), t('f_extreme'))),
+    p.extremeComments ? [
+      field(t('f_depth'), null, h('select', { style: 'max-width:320px', onchange: e => { p.extremeDepth = parseInt(e.target.value, 10); persist(); } },
+        h('option', { value: 1, selected: p.extremeDepth === 1 }, t('depth1')), h('option', { value: 2, selected: p.extremeDepth === 2 }, t('depth2')))),
+      field('', null, h('label', { class: 'check', style: 'font-weight:500' }, h('input', { type: 'checkbox', checked: p.requireComments, onchange: e => { p.requireComments = e.target.checked; persist(); } }), t('f_req_comments')))] : null,
+    h('h3', { style: 'margin-top:30px' }, t('questions')),
+    qcards,
+    h('button', { class: 'btn ghost', onclick: () => { p.questions.push({ id: 'q' + (p.questions.length + 1), type: 'text', required: false, label: {}, options: {} }); rerender(); } }, t('add_q'))
+  ];
+}
+
+function pShare(v) {
+  const c = D.cfg;
+  const all = TABS.flatMap(tab => v[tab].map(x => Object.assign({ tab }, x))).sort((a, b) => (a.lvl === 'e' ? 0 : 1) - (b.lvl === 'e' ? 0 : 1));
+  const hasErr = all.some(x => x.lvl === 'e');
+  const isWeb = /^https?:/.test(location.protocol);
+  const shortLink = D.base.replace(/[^/]*$/, '') + '?s=' + c.id;
+  const fileInput = h('input', { type: 'file', accept: '.json,application/json', style: 'display:none', onchange: async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try { const j = JSON.parse(await f.text()); if (!j.statements || !j.grid) throw 0; D.cfg = normalizeConfig(j); D.tab = 'share'; rerender(); dirtySinceSave = false; lastFileSave = Date.now(); }
+    catch { alert(t('load_bad')); }
+  } });
+  return [
+    h('h2', {}, t('tab_share')), h('p', { class: 'intro' }, t('sh_intro')),
+    h('ul', { class: 'vlist' }, all.length ? all.map(x => h('li', { class: x.lvl }, x.msg, ' ',
+      h('button', { class: 'btn link small', onclick: () => { D.tab = x.tab; renderDesigner(); } }, t('tab_' + x.tab)))) : h('li', { class: 'o' }, t('v_ok'))),
+    h('div', { class: 'row', style: 'margin-bottom:34px' },
+      h('button', { class: 'btn', disabled: !c.statements.length || c.grid.heights.reduce((a, b) => a + b, 0) !== c.statements.length,
+        onclick: () => startParticipant(c, { preview: true }) }, t('preview')),
+      h('button', { class: 'btn ghost', onclick: saveToFile }, t('dl_cfg')),
+      h('button', { class: 'btn ghost', onclick: () => fileInput.click() }, t('load_cfg')), fileInput),
+
+    h('h3', {}, t('link_t')),
+    h('p', { class: 'help', style: 'max-width:68ch' }, t('link_help')),
+    !isWeb ? h('p', { class: 'err small' }, t('link_file_warn')) : null,
+    field(t('link_base'), null, h('input', { type: 'url', value: D.base, oninput: e => { D.base = e.target.value.trim(); D.link = ''; } })),
+    h('div', { class: 'row', style: 'margin-bottom:12px' },
+      h('button', { class: 'btn', disabled: hasErr, onclick: async () => { D.link = D.base + '#c=' + await packConfig(c); renderDesigner(); } }, t('link_make'))),
+    D.link ? [h('textarea', { class: 'linkbox', readonly: true, value: D.link, 'aria-label': t('link_t') }),
+      h('div', { class: 'row', style: 'margin:10px 0 0' },
+        h('button', { class: 'btn sm', onclick: () => copyText(D.link) }, t('copy')),
+        h('a', { class: 'btn ghost sm', href: D.link, target: '_blank', rel: 'noopener', style: 'text-decoration:none' }, t('open')),
+        h('span', { class: 'muted small' }, `${D.link.length} karakter / characters`))] : null,
+    h('p', { class: 'help', style: 'margin-top:22px' }, h('strong', {}, t('alt_t')), '. ', t('alt_help', { id: c.id })),
+    h('p', { class: 'small' }, h('code', {}, shortLink)),
+
+    h('h3', { style: 'margin-top:36px' }, t('gs_t')),
+    h('p', { class: 'help', style: 'max-width:68ch' }, t('gs_help')),
+    h('ol', { class: 'howlist', style: 'font-size:15px' }, ['gs_1', 'gs_2', 'gs_3', 'gs_4', 'gs_5'].map(k => h('li', { style: 'font-size:15px' }, t(k)))),
+    APPS_SCRIPT ? [h('button', { class: 'btn ghost sm', style: 'margin-bottom:10px', onclick: () => copyText(APPS_SCRIPT) }, t('copy_code')),
+      h('pre', { class: 'code' }, APPS_SCRIPT)] : null
+  ];
+}
+
+/* ---------- home ---------- */
+function renderHome() {
+  mode = 'home';
+  document.documentElement.lang = uiLang;
+  document.title = t('appName');
+  const hs = [2, 3, 4, 5, 6, 5, 4, 3, 2];
+  let d = 0;
+  const pyr = h('div', { class: 'pyr anim', 'aria-hidden': 'true' }, hs.map((n, i) => {
+    const s = i - 4;
+    return h('div', { class: 'pc', style: scoreVars(s) }, h('span', { class: 'pl', style: 'color:var(--c)' }, fmtScore(s)),
+      Array.from({ length: n }, () => h('span', { class: 'pb', style: `--d:${(d++) * 22}ms` })));
+  }));
+  mount(
+    h('header', { class: 'bar' }, h('div', { class: 'brand', style: 'cursor:default' }, brandMark(), t('appName')), langSwitch(LANGS, uiLang, l => { uiLang = l; renderHome(); })),
+    h('main', { class: 'wrap' },
+      h('section', { class: 'hero' },
+        h('div', {},
+          h('h1', {}, t('appName')),
+          h('p', { class: 'lead' }, t('home_lead')),
+          h('div', { class: 'hero-actions' },
+            h('button', { class: 'btn', onclick: startDesigner }, t('home_design')),
+            h('button', { class: 'btn ghost', onclick: () => startParticipant(DEMO, { preview: true, from: 'home' }) }, t('home_demo'))),
+          h('p', { class: 'muted small' }, t('home_note'))),
+        pyr),
+      h('section', { class: 'feat' }, [1, 2, 3].map(i => h('div', {}, h('h3', {}, t('f' + i + 't')), h('p', {}, t('f' + i)))))));
+}
+
+function renderLoadError() {
+  mode = 'error';
+  mount(h('header', { class: 'bar' }, h('div', { class: 'brand' }, brandMark(), t('appName'))),
+    h('main', { class: 'wrap narrow' }, h('h1', {}, t('load_err_t')), h('p', {}, t('load_err'))));
+}
+
+/* ---------- routing ---------- */
+async function boot() {
+  const hsh = location.hash, qs = new URLSearchParams(location.search);
+  try {
+    if (hsh.startsWith('#c=')) return startParticipant(await unpackConfig(hsh.slice(3)));
+    const s = qs.get('s');
+    if (s) {
+      const r = await fetch('surveys/' + s.replace(/[^\w-]/g, '') + '.json', { cache: 'no-store' });
+      if (!r.ok) throw new Error('not found');
+      return startParticipant(await r.json());
+    }
+  } catch (e) { return renderLoadError(); }
+  if (hsh === '#tervezo' || hsh === '#designer') return startDesigner();
+  renderHome();
+}
+boot();
+
+</script>
+</body>
+</html>
