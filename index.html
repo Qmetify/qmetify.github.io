@@ -334,7 +334,7 @@ const T = {
     short_t: 'Rövidítés:', short_help: 'Másold ki a linket, majd illeszd be a rövidítő oldalán. Új lapon nyílik.',
     gs_notice: 'Még nincs kész Google-táblázatod? Nyisd meg az Útmutatót.',
     gs_guide_t: 'Útmutató: Google-táblázat és Apps Script beállítása', gs_code_t: 'Az Apps Script kódja (Code.gs)', gs_trouble: 'Ha elakadsz', gs_note_t: 'Fontos',
-    s_done_pill: 'Kész', s_review: 'Nézze át még egyszer a rácsot, és ha kell, cseréljen. Ha elégedett, lépjen tovább.', s_left_n: 'Hátravan: {n} állítás', s_place: 'Kattintson egy oszlop fejlécére vagy üres mezőre, vagy húzza oda a kártyát. Lerakott kártyára kattintva áthelyezheti, egy másikra kattintva felcserélheti.', s_prev: 'Előző', s_next: 'Következő', s_undo: 'Visszavonás', s_reset: 'Rendezés újrakezdése', s_reset_confirm: 'Kiüríti a rácsot, és újrakezdi a rendezést? (Az előválogatás megmarad.)',
+    d_home: 'Kezdőoldal', s_done_pill: 'Kész', s_review: 'Nézze át még egyszer a rácsot, és ha kell, cseréljen. Ha elégedett, lépjen tovább.', s_left_n: 'Hátravan: {n} állítás', s_place: 'Kattintson egy oszlop fejlécére vagy üres mezőre, vagy húzza oda a kártyát. Lerakott kártyára kattintva áthelyezheti, egy másikra kattintva felcserélheti.', s_prev: 'Előző', s_next: 'Következő', s_undo: 'Visszavonás', s_reset: 'Rendezés újrakezdése', s_reset_confirm: 'Kiüríti a rácsot, és újrakezdi a rendezést? (Az előválogatás megmarad.)',
     s_left: 'Hátravan: {n}', s_all_placed: 'Kész: minden állítás a rácson.',
     d_file_save: 'Mentés fájlba', d_file_load: 'Betöltés fájlból', d_file_saved: 'A terv elmentve. Tedd a fájlt a saját Drive-odra.',
     d_file_warn: 'Ne feledd: a terved csak ebben a böngészőben van meg. Mentsd fájlba, hogy más gépen is folytathasd.',
@@ -473,7 +473,7 @@ const T = {
     short_t: 'Shorten:', short_help: 'Copy the link, then paste it on the shortener’s page. Opens in a new tab.',
     gs_notice: 'No Google Sheet set up yet? Open the Guide.',
     gs_guide_t: 'Guide: setting up Google Sheets and Apps Script', gs_code_t: 'The Apps Script code (Code.gs)', gs_trouble: 'If you get stuck', gs_note_t: 'Important',
-    s_done_pill: 'Done', s_review: 'Look over the grid once more and swap cards if needed. When you are happy, continue.', s_left_n: '{n} statements left', s_place: 'Click a column header or an empty slot, or drag the card there. Click a placed card to move it, or another card to swap.', s_prev: 'Previous', s_next: 'Next', s_undo: 'Undo', s_reset: 'Restart sorting', s_reset_confirm: 'Clear the grid and restart sorting? (Your pre-sort is kept.)',
+    d_home: 'Home', s_done_pill: 'Done', s_review: 'Look over the grid once more and swap cards if needed. When you are happy, continue.', s_left_n: '{n} statements left', s_place: 'Click a column header or an empty slot, or drag the card there. Click a placed card to move it, or another card to swap.', s_prev: 'Previous', s_next: 'Next', s_undo: 'Undo', s_reset: 'Restart sorting', s_reset_confirm: 'Clear the grid and restart sorting? (Your pre-sort is kept.)',
     s_left: 'Left: {n}', s_all_placed: 'Done: every statement is on the grid.',
     d_file_save: 'Save to file', d_file_load: 'Load from file', d_file_saved: 'Design saved. Put the file in your own Drive.',
     d_file_warn: 'Remember: your design exists only in this browser. Save it to a file so you can continue on another computer.',
@@ -1301,7 +1301,7 @@ function renderDesignerStart() {
   mount(
     h('header', { class: 'bar' },
       h('button', { class: 'brand', onclick: () => { history.replaceState(null, '', location.pathname); renderHome(); } }, brandMark(), t('appName')),
-      langSwitch(LANGS, uiLang, l => { setUiLang(l); renderDesignerStart(); })),
+      h('div', { class: 'bar-right' }, homeBtn(), langSwitch(LANGS, uiLang, l => { setUiLang(l); renderDesignerStart(); }))),
     h('main', { class: 'wrap narrow' },
       h('h1', {}, t('ds_t')), h('p', { class: 'lead' }, t('ds_intro')),
       card(t('ds_load'), t('ds_load_help'), h('button', { class: 'btn', onclick: () => fileInput.click() }, t('ds_load'))), fileInput,
@@ -1312,6 +1312,8 @@ function renderDesignerStart() {
 }
 function defaultBase() { return location.href.split('#')[0].split('?')[0]; }
 function persist() { clearTimeout(saveTimer); saveTimer = setTimeout(() => lsSet(DRAFT_KEY, D.cfg), 300); D.link = ''; dirtySinceSave = true; }
+function goHome() { history.replaceState(null, '', location.pathname); renderHome(); }
+function homeBtn() { return h('button', { class: 'btn ghost sm', onclick: goHome }, '← ' + t('d_home')); }
 function saveToFile() { download(D.cfg, `${D.cfg.id}.json`); lastFileSave = Date.now(); dirtySinceSave = false; toast(t('d_file_saved')); }
 window.addEventListener('beforeunload', e => {
   if (mode === 'designer' && D) { clearTimeout(saveTimer); lsSet(DRAFT_KEY, D.cfg); }
@@ -1359,7 +1361,7 @@ function renderDesigner() {
   const v = validate(D.cfg);
   const header = h('header', { class: 'bar' },
     h('button', { class: 'brand', onclick: () => { history.replaceState(null, '', location.pathname); renderHome(); } }, brandMark(), t('appName')),
-    h('div', { class: 'bar-right' },
+    h('div', { class: 'bar-right' }, homeBtn(),
       h('button', { class: 'btn sm', onclick: saveToFile }, t('d_file_save')),
       h('button', { class: 'btn ghost sm', onclick: () => { if (dirtySinceSave && !confirm(t('d_new_confirm'))) return; D = null; renderDesignerStart(); } }, t('d_file_load')),
       h('button', { class: 'btn ghost sm', onclick: () => { if (confirm(t('d_new_confirm'))) { D.cfg = blankConfig(); D.tab = 'basics'; rerender(); } } }, t('d_new')),
