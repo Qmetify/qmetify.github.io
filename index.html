@@ -102,8 +102,10 @@ a{color:inherit}
 /* sort grid (compact, fits one screen) */
 .sortwrap{max-width:1500px;padding:12px 20px 12px}
 .sorttop{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:stretch;margin-bottom:6px}
-.stmain{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--c,var(--ink));border-radius:0 8px 8px 0;padding:9px 16px;min-height:84px;display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0}
-.coi-mini{font-family:var(--serif);font-size:15px;color:var(--muted);margin:0;max-width:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stmain{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--c,var(--ink));border-radius:0 8px 8px 0;padding:9px 16px;min-height:72px;display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0}
+.coi-top{font-family:var(--serif);font-size:clamp(19px,1.7vw,24px);line-height:1.3;color:var(--ink);margin:0 0 8px;max-width:none;font-weight:600}
+.hint-mini .btn.link{font-size:13.5px;padding:0;vertical-align:baseline}
+.hint-mini .helptxt{color:var(--ink)}
 .cur{display:flex;gap:12px;align-items:baseline;min-width:0}
 .cur[draggable="true"]{cursor:grab}
 .cur .pbadge{flex:none;font-size:12.5px;font-weight:700;color:var(--c);border:1.5px solid var(--c);border-radius:4px;padding:1px 8px;white-space:nowrap}
@@ -112,7 +114,11 @@ a{color:inherit}
 .cur.alldone .ctx{color:var(--agree);font-weight:600}
 .stbtns{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:center}
 .stbtns .btn{white-space:nowrap;font-size:13.5px;padding:7px 12px}
-.hint-mini{font-size:13.5px;color:var(--muted);margin:0 0 8px;max-width:none;line-height:1.4}
+.hint-mini{display:flex;align-items:center;gap:14px;margin:2px 0 10px;max-width:none;line-height:1.4}
+.leftpill{flex:none;font-size:17px;font-weight:700;color:var(--bg);background:var(--ink);border-radius:999px;padding:5px 14px;white-space:nowrap}
+.leftpill.done{background:var(--agree)}
+.howto{font-size:clamp(15px,1.25vw,17px);color:var(--ink);line-height:1.35}
+@media (max-width:700px){.hint-mini{flex-direction:column;align-items:flex-start;gap:6px}}
 .hint-mini strong{color:var(--ink)}
 .gridwrap{overflow-x:auto;padding:2px 2px 0}
 .qgrid{display:grid;grid-template-columns:repeat(var(--k,9),minmax(var(--mincw,0px),1fr));gap:6px;align-items:start}
@@ -127,7 +133,7 @@ a{color:inherit}
 .slot.filled{border:0;background:none}
 .slot.empty:hover,.picking .slot.empty{border-color:var(--pick);border-style:solid}
 .slot.over{background:var(--pick-soft);border-style:solid;border-color:var(--pick)}
-.scard{font:inherit;display:block;width:100%;height:100%;text-align:left;background:var(--surface);color:var(--ink);border:1px solid color-mix(in srgb,var(--c) 55%,var(--line));border-left:4px solid var(--c);border-radius:0 4px 4px 0;padding:3px 7px;font-family:var(--sans);font-size:12.5px;line-height:1.25;cursor:pointer;overflow:hidden}
+.scard{font:inherit;display:block;width:100%;height:100%;text-align:left;background:var(--surface);color:var(--ink);border:1px solid color-mix(in srgb,var(--c) 55%,var(--line));border-left:4px solid var(--c);border-radius:0 4px 4px 0;padding:2px 7px;font-family:var(--sans);font-size:12.5px;line-height:1.22;cursor:pointer;overflow:hidden}
 .scard .tx{display:-webkit-box;-webkit-line-clamp:var(--lc,2);-webkit-box-orient:vertical;overflow:hidden}
 .scard .num{font-weight:700;color:var(--c);margin-right:4px}
 .scard:hover{border-color:var(--c)}
@@ -328,7 +334,7 @@ const T = {
     short_t: 'Rövidítés:', short_help: 'Másold ki a linket, majd illeszd be a rövidítő oldalán. Új lapon nyílik.',
     gs_notice: 'Még nincs kész Google-táblázatod? Nyisd meg az Útmutatót.',
     gs_guide_t: 'Útmutató: Google-táblázat és Apps Script beállítása', gs_code_t: 'Az Apps Script kódja (Code.gs)', gs_trouble: 'Ha elakadsz', gs_note_t: 'Fontos',
-    s_prev: 'Előző', s_next: 'Következő', s_undo: 'Visszavonás', s_reset: 'Rendezés újrakezdése', s_reset_confirm: 'Kiüríti a rácsot, és újrakezdi a rendezést? (Az előválogatás megmarad.)',
+    s_done_pill: 'Kész', s_review: 'Nézze át még egyszer a rácsot, és ha kell, cseréljen. Ha elégedett, lépjen tovább.', s_left_n: 'Hátravan: {n} állítás', s_place: 'Kattintson egy oszlop fejlécére vagy üres mezőre, vagy húzza oda a kártyát. Lerakott kártyára kattintva áthelyezheti, egy másikra kattintva felcserélheti.', s_prev: 'Előző', s_next: 'Következő', s_undo: 'Visszavonás', s_reset: 'Rendezés újrakezdése', s_reset_confirm: 'Kiüríti a rácsot, és újrakezdi a rendezést? (Az előválogatás megmarad.)',
     s_left: 'Hátravan: {n}', s_all_placed: 'Kész: minden állítás a rácson.',
     d_file_save: 'Mentés fájlba', d_file_load: 'Betöltés fájlból', d_file_saved: 'A terv elmentve. Tedd a fájlt a saját Drive-odra.',
     d_file_warn: 'Ne feledd: a terved csak ebben a böngészőben van meg. Mentsd fájlba, hogy más gépen is folytathasd.',
@@ -467,7 +473,7 @@ const T = {
     short_t: 'Shorten:', short_help: 'Copy the link, then paste it on the shortener’s page. Opens in a new tab.',
     gs_notice: 'No Google Sheet set up yet? Open the Guide.',
     gs_guide_t: 'Guide: setting up Google Sheets and Apps Script', gs_code_t: 'The Apps Script code (Code.gs)', gs_trouble: 'If you get stuck', gs_note_t: 'Important',
-    s_prev: 'Previous', s_next: 'Next', s_undo: 'Undo', s_reset: 'Restart sorting', s_reset_confirm: 'Clear the grid and restart sorting? (Your pre-sort is kept.)',
+    s_done_pill: 'Done', s_review: 'Look over the grid once more and swap cards if needed. When you are happy, continue.', s_left_n: '{n} statements left', s_place: 'Click a column header or an empty slot, or drag the card there. Click a placed card to move it, or another card to swap.', s_prev: 'Previous', s_next: 'Next', s_undo: 'Undo', s_reset: 'Restart sorting', s_reset_confirm: 'Clear the grid and restart sorting? (Your pre-sort is kept.)',
     s_left: 'Left: {n}', s_all_placed: 'Done: every statement is on the grid.',
     d_file_save: 'Save to file', d_file_load: 'Load from file', d_file_saved: 'Design saved. Put the file in your own Drive.',
     d_file_warn: 'Remember: your design exists only in this browser. Save it to a file so you can continue on another computer.',
@@ -534,7 +540,10 @@ const T = {
   }
 };
 
-let uiLang = (navigator.language || 'hu').toLowerCase().startsWith('hu') ? 'hu' : 'en';
+const LANG_KEY = 'qmuhely:lang';
+function storedLang() { try { const l = JSON.parse(localStorage.getItem(LANG_KEY)); return l === 'hu' || l === 'en' ? l : null; } catch { return null; } }
+function setUiLang(l) { uiLang = l; try { localStorage.setItem(LANG_KEY, JSON.stringify(l)); } catch {} }
+let uiLang = storedLang() || ((navigator.language || 'hu').toLowerCase().startsWith('hu') ? 'hu' : 'en');
 let mode = 'home';
 const root = document.getElementById('app');
 
@@ -818,7 +827,7 @@ function startParticipant(rawCfg, opts = {}) {
 
 function newParticipantState(cfg) {
   const ids = cfg.statements.map(s => s.id);
-  const pref = (navigator.language || '').slice(0, 2).toLowerCase();
+  const pref = (storedLang() || navigator.language || '').slice(0, 2).toLowerCase();
   return {
     pid: uuid(), stage: 'intro', lang: cfg.languages.includes(pref) ? pref : cfg.defaultLang,
     order: cfg.settings.randomize ? shuffle(ids.slice()) : ids.slice(),
@@ -854,7 +863,7 @@ function renderParticipant() {
     h('div', { class: 'bar-right' },
       stepIdx !== undefined ? h('ol', { class: 'steps', 'aria-label': 'Progress' },
         ['step_presort', 'step_sort', 'step_post'].map((k, i) => h('li', { class: i === stepIdx ? 'on' : i < stepIdx ? 'done' : '', 'aria-current': i === stepIdx ? 'step' : null }, t(k)))) : null,
-      langSwitch(cfg.languages, st.lang, l => { st.lang = l; saveP(); renderParticipant(); })));
+      langSwitch(cfg.languages, st.lang, l => { st.lang = l; setUiLang(l); saveP(); renderParticipant(); })));
   const banner = P.preview ? h('div', { class: 'banner' }, h('span', {}, t('preview_banner')),
     h('button', { class: 'btn sm ghost', onclick: () => P.from === 'home' ? renderHome() : startDesigner() }, P.from === 'home' ? t('back_home') : t('back_designer'))) : null;
   const views = { intro: vIntro, howto: vHowto, presort: vPresort, sort: vSort, post: vPost, done: vDone };
@@ -1054,8 +1063,7 @@ function vSort() {
     : [h('button', { class: 'btn ghost sm', disabled: pileQueue(q).length < 2, onclick: () => stepCur(-1) }, '← ' + t('s_prev')),
        h('button', { class: 'btn ghost sm', disabled: pileQueue(q).length < 2, onclick: () => stepCur(1) }, t('s_next') + ' →')];
   const top = h('section', { class: 'sorttop' },
-    h('div', { class: 'stmain', style: colorVars(pile) },
-      L(cfg.texts.instruction) ? h('p', { class: 'coi-mini', title: L(cfg.texts.instruction) }, L(cfg.texts.instruction)) : null, curEl),
+    h('div', { class: 'stmain', style: colorVars(pile) }, curEl),
     h('div', { class: 'stbtns' }, btns,
       h('button', { class: 'btn ghost sm', disabled: !(P.hist && P.hist.length), onclick: undoSort }, '↶ ' + t('s_undo')),
       h('button', { class: 'btn ghost sm', disabled: !st.grid.flat().some(Boolean), onclick: resetSort }, t('s_reset'))));
@@ -1078,8 +1086,11 @@ function vSort() {
   }));
 
   return [
+    L(cfg.texts.instruction) ? h('p', { class: 'coi-top' }, L(cfg.texts.instruction)) : null,
     top,
-    h('p', { class: 'hint-mini', role: 'status' }, h('strong', {}, q.length ? t('s_left', { n: q.length }) + '. ' : ''), hint, ' ', h('span', {}, t('sort_help'))),
+    h('div', { class: 'hint-mini', role: 'status' },
+      h('span', { class: 'leftpill' + (q.length ? '' : ' done') }, q.length ? t('s_left_n', { n: q.length }) : '✓ ' + t('s_done_pill')),
+      h('span', { class: 'howto' }, q.length ? t('s_place') : t('s_review'))),
     h('p', { class: 'narrow-note muted small' }, t('narrow')),
     h('div', { class: 'gridwrap' }, grid,
       h('div', { class: 'ends' }, h('span', { class: 'l' }, L(cfg.labels.left)), h('span', { class: 'r' }, L(cfg.labels.right)))),
@@ -1103,7 +1114,7 @@ function fitSort() {
       g.style.setProperty('--sh', sh + 'px');
     }
   }
-  const lc = sh >= 80 ? 4 : sh >= 62 ? 3 : sh >= 38 ? 2 : 1;
+  const lc = sh >= 80 ? 4 : sh >= 62 ? 3 : sh >= 35 ? 2 : 1;
   P.sh = sh; P.lc = lc;
   g.style.setProperty('--sh', sh + 'px'); g.style.setProperty('--lc', String(lc));
 }
@@ -1290,7 +1301,7 @@ function renderDesignerStart() {
   mount(
     h('header', { class: 'bar' },
       h('button', { class: 'brand', onclick: () => { history.replaceState(null, '', location.pathname); renderHome(); } }, brandMark(), t('appName')),
-      langSwitch(LANGS, uiLang, l => { uiLang = l; renderDesignerStart(); })),
+      langSwitch(LANGS, uiLang, l => { setUiLang(l); renderDesignerStart(); })),
     h('main', { class: 'wrap narrow' },
       h('h1', {}, t('ds_t')), h('p', { class: 'lead' }, t('ds_intro')),
       card(t('ds_load'), t('ds_load_help'), h('button', { class: 'btn', onclick: () => fileInput.click() }, t('ds_load'))), fileInput,
@@ -1352,7 +1363,7 @@ function renderDesigner() {
       h('button', { class: 'btn sm', onclick: saveToFile }, t('d_file_save')),
       h('button', { class: 'btn ghost sm', onclick: () => { if (dirtySinceSave && !confirm(t('d_new_confirm'))) return; D = null; renderDesignerStart(); } }, t('d_file_load')),
       h('button', { class: 'btn ghost sm', onclick: () => { if (confirm(t('d_new_confirm'))) { D.cfg = blankConfig(); D.tab = 'basics'; rerender(); } } }, t('d_new')),
-      langSwitch(LANGS, uiLang, l => { uiLang = l; renderDesigner(); })));
+      langSwitch(LANGS, uiLang, l => { setUiLang(l); renderDesigner(); })));
   const nav = h('nav', { class: 'dnav', 'aria-label': 'Designer' }, TABS.map(tab => {
     const errs = v[tab].filter(x => x.lvl === 'e').length, warns = v[tab].length - errs;
     const flag = tab === 'statements' ? h('span', { class: 'flag ' + (errs ? 'e' : 'n') }, String(D.cfg.statements.length))
@@ -1617,7 +1628,7 @@ function renderHome() {
       Array.from({ length: n }, () => h('span', { class: 'pb', style: `--d:${(d++) * 22}ms` })));
   }));
   mount(
-    h('header', { class: 'bar' }, h('div', { class: 'brand', style: 'cursor:default' }, brandMark(), t('appName')), langSwitch(LANGS, uiLang, l => { uiLang = l; renderHome(); })),
+    h('header', { class: 'bar' }, h('div', { class: 'brand', style: 'cursor:default' }, brandMark(), t('appName')), langSwitch(LANGS, uiLang, l => { setUiLang(l); renderHome(); })),
     h('main', { class: 'wrap' },
       h('section', { class: 'hero' },
         h('div', {},
